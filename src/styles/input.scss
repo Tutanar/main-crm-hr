@@ -1,0 +1,64 @@
+// Reusable styles for the entire project
+@import './_mixins';
+@import './_variables';
+
+// Styles for components
+@import './Header/Header.scss';
+
+// @import './WhyChooseUs/WhyChooseUs.scss'
+@import './Card/Card.scss';
+// @import './Footer/Footer.scss';
+@import './Button/Button.scss';
+@import './Avatar/Avatar.scss';
+@import './Pagination/Pagination.scss';
+@import './Tabs/Tabs.scss';
+@import './Layout/Layout.scss';
+@import './Table/Table.scss';
+@import './Sidebar/Sidebar.scss';
+
+// Global input styles
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.field__input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  &--error {
+    border-color: #ef4444;
+    
+    &:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+  
+  &--sm {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+.field__error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 2px;
+}

@@ -1,0 +1,37 @@
+:root{
+    --pink-25: #fff1f7;
+    --pink-50: #ffe4ef;
+    --pink-100:#fce7f3;
+    --pink-300:#f9a8d4;
+    --pink-500:#ec4899;
+  
+    --bg-grad-from: var(--pink-100);
+    --bg-grad-to: #ffd2e6;
+  
+    --text-900: #0f172a;
+    --text-700: #334155;
+    --text-500: #6b7280;
+  
+    --border: rgba(236,72,153,.35);
+    --shadow-card: 0 10px 20px rgba(236, 72, 153, .08);
+    --radius: 12px;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; }
+  .button {
+    border-radius: var(--radius);
+    font-weight: 700;
+    letter-spacing: .2px;
+    transition: transform .05s ease, box-shadow .2s ease, filter .2s ease;
+    box-shadow: 0 4px 10px rgba(236,72,153,.18);
+  }
+  .button:active { transform: translateY(1px); filter: brightness(.98); }
+  
+  .field__input {
+    border-radius: 10px;
+    transition: box-shadow .2s ease, border-color .2s ease;
+  }
+  .field__input:focus {
+    box-shadow: 0 0 0 3px rgba(236,72,153,.18);
+    border-color: rgba(236,72,153,.6);
+  }

@@ -1,0 +1,16 @@
+.header {
+    position: sticky; top:0; z-index: 30;
+    background: rgba(255,255,255,.75); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  
+    &__inner { max-width: 1200px; margin: 0 auto; padding: 12px 24px;
+      display:flex; align-items:center; justify-content:space-between; }
+    &__brand { display:flex; align-items:center; gap:10px; font-weight:800; }
+    &__avatar { width: 36px; height: 36px; border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink-300), var(--pink-500));
+      display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; }
+    &__nav { display:flex; gap: 12px; }
+    &__link { padding: 8px 10px; border-radius: 10px; color: var(--text-700);
+      &:hover{ background: var(--pink-25); color: var(--text-900); } }
+  }
+  

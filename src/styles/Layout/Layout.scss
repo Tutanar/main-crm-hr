@@ -1,0 +1,12 @@
+
+
+body {
+  min-height: 100dvh;
+  color: var(--text-900);
+  background: linear-gradient(135deg, var(--bg-grad-from), var(--bg-grad-to));
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.page-title { font-size: 22px; font-weight: 800; margin: 4px 0 16px; }
+
+.main { margin-left: 260px; padding: 24px; }   // отступ под сайдбар

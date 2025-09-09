@@ -1,0 +1,22 @@
+@mixin button-reset {
+    appearance: none; background: none; border: 0; font: inherit; color: inherit; cursor: pointer;
+  }
+  
+  @mixin input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+    background: #fff; color: var(--text-900);
+    &:focus { outline: none; box-shadow: 0 0 0 3px rgba(236,72,153,.15); }
+  }
+  
+  @mixin card {
+    background: #fff; border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-card);
+  }
+  
+  @mixin table {
+    width: 100%; border-collapse: separate; border-spacing: 0; background: #fff;
+    thead th { background: var(--pink-50); color: var(--text-700); font-weight: 700; }
+    th, td { padding: 14px 16px; text-align: left; }
+    tbody tr + tr td { border-top: 1px solid var(--border); }
+    tbody tr:hover { background: var(--pink-25); }
+  }
+  

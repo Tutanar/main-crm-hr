@@ -1,0 +1,12 @@
+
+
+.table { @include table; }
+
+.badge {
+  display:inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight:700;
+  &--blue   { background: #e0f2fe; color:#0369a1; }
+  &--yellow { background: #fef3c7; color:#92400e; }
+  &--green  { background: #d1fae5; color:#065f46; }
+  &--red    { background: #fee2e2; color:#991b1b; }
+  &--gray   { background: #f3f4f6; color:#374151; }
+}
