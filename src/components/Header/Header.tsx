@@ -3,7 +3,7 @@ import { useRole } from '@/components/RoleProvider/RoleProvider';
 import { useRouter } from 'next/navigation';
 
 export default function Header() {
-  const { role, isAuthenticated, loading, username, logout } = useRole();
+  const { role, isAuthenticated, loading,  logout } = useRole();
   const router = useRouter();
 
   if (loading || !isAuthenticated || !role) {
@@ -32,20 +32,14 @@ export default function Header() {
     <header className="header">
       <div className="header__content">
         <div className="header__left">
-          <h1 className="header__title">CRM HR System</h1>
+         
         </div>
         
         <div className="header__right">
           <div className="header__user-info">
-            <span className="header__username">{username}</span>
-            <span className="header__role">({getRoleDisplayName(role)})</span>
+            <h1 className="header__title">CRM HR System</h1>
+            <span className="header__role">{getRoleDisplayName(role)}</span>
           </div>
-          <button 
-            className="header__logout" 
-            onClick={handleLogout}
-          >
-            Выйти
-          </button>
         </div>
       </div>
     </header>

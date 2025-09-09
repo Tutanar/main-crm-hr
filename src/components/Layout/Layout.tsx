@@ -1,7 +1,7 @@
 'use client';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header/Header';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
@@ -12,6 +12,16 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { role, isAuthenticated, loading } = useRole();
   const router = useRouter();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      setIsSidebarCollapsed(prev => !prev);
+    };
+
+    window.addEventListener('toggleSidebar', handleToggleSidebar);
+    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
+  }, []);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -48,7 +58,7 @@ export default function Layout({ children }: LayoutProps) {
       <Header />
       <div className="layout__content">
         <Sidebar />
-        <main className="layout__main">
+        <main className={`layout__main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           {children}
         </main>
       </div>

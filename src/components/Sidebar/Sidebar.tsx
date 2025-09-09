@@ -2,13 +2,22 @@
 'use client';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Sidebar() {
   const { role, isAuthenticated, loading } = useRole();
   const router = useRouter();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      setIsCollapsed(prev => !prev);
+    };
+
+    window.addEventListener('toggleSidebar', handleToggleSidebar);
+    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
+  }, []);
 
   if (loading || !isAuthenticated || !role) {
     return null;
@@ -37,11 +46,7 @@ export default function Sidebar() {
     );
   }
 
-  // Добавляем общие пункты меню
-  menuItems.push(
-    { label: 'Профиль', href: '/profile' },
-    { label: 'Тест Hasura', href: '/hasura-test' }
-  );
+  // No common menu items - only role-specific ones
 
   const handleLogout = async () => {
     // Используем logout из контекста
@@ -53,12 +58,22 @@ export default function Sidebar() {
   return (
     <aside className={`sidebar ${isCollapsed ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar__header">
-        <h3 className="sidebar__title">CRM HR</h3>
         <button 
           className="sidebar__toggle" 
           onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? 'Развернуть сайдбар' : 'Свернуть сайдбар'}
         >
-          {isCollapsed ? '→' : '←'}
+          <svg 
+            className={`sidebar__toggle-icon ${isCollapsed ? 'sidebar__toggle-icon--collapsed' : ''}`}
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+          >
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
         </button>
       </div>
       
@@ -70,7 +85,7 @@ export default function Sidebar() {
                 href={item.href}
                 className={`sidebar__link ${pathname === item.href ? 'sidebar__link--active' : ''}`}
               >
-                {item.label}
+                <span className="sidebar__link-text">{item.label}</span>
               </a>
             </li>
           ))}
@@ -81,8 +96,14 @@ export default function Sidebar() {
         <button 
           className="sidebar__logout" 
           onClick={handleLogout}
+          aria-label="Выйти из системы"
         >
-          Выйти
+          <svg className="sidebar__logout-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16,17 21,12 16,7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span className="sidebar__logout-text">Выйти</span>
         </button>
       </div>
     </aside>
