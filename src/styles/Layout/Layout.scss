@@ -1,12 +1,51 @@
-
-
 body {
   min-height: 100dvh;
   color: var(--text-900);
   background: linear-gradient(135deg, var(--bg-grad-from), var(--bg-grad-to));
 }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.page-title { font-size: 22px; font-weight: 800; margin: 4px 0 16px; }
+.container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 24px; 
+}
 
-.main { margin-left: 260px; padding: 24px; }   // отступ под сайдбар
+.page-title { 
+  font-size: 22px; 
+  font-weight: 800; 
+  margin: 4px 0 16px; 
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout__content {
+  display: flex;
+  flex: 1;
+  margin-top: 64px; // Header height
+}
+
+.layout__main {
+  flex: 1;
+  margin-left: 280px; // Sidebar width
+  padding: 24px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: calc(100vh - 64px);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 16px 0 0 0;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+}
+
+// When sidebar is collapsed
+.layout__main.sidebar-collapsed {
+  margin-left: 80px;
+}
+
+.main { 
+  margin-left: 0; 
+  padding: 0; 
+}
