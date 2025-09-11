@@ -34,54 +34,27 @@ export default function UsersView({ role }: UsersViewProps) {
         return;
       }
 
-      // Моковые данные пользователей
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          username: 'admin',
-          email: 'admin@company.com',
-          role: 'admin',
-          is_active: true,
-          created_at: '2023-01-01T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z',
-          created_by: '1'
+      // Реальный API запрос к Hasura
+      const response = await fetch('/api/users', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        {
-          id: '2',
-          username: 'chief-hr',
-          email: 'chief-hr@company.com',
-          role: 'chief-hr',
-          is_active: true,
-          created_at: '2023-01-15T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z',
-          created_by: '1'
-        },
-        {
-          id: '3',
-          username: 'hr1',
-          email: 'hr1@company.com',
-          role: 'hr',
-          is_active: true,
-          created_at: '2023-02-01T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z',
-          created_by: '2'
-        },
-        {
-          id: '4',
-          username: 'hr2',
-          email: 'hr2@company.com',
-          role: 'hr',
-          is_active: false,
-          created_at: '2023-02-15T10:00:00Z',
-          updated_at: '2024-01-10T10:00:00Z',
-          created_by: '2'
-        }
-      ];
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка загрузки пользователей');
+      }
+
+      const data = await response.json();
+      const usersData = data.data || [];
 
       // Фильтрация по поиску
-      let filteredUsers = mockUsers;
+      let filteredUsers = usersData;
       if (searchTerm) {
-        filteredUsers = mockUsers.filter(user =>
+        filteredUsers = usersData.filter((user: User) =>
           user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.email.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -89,7 +62,7 @@ export default function UsersView({ role }: UsersViewProps) {
 
       // Фильтрация по роли
       if (roleFilter) {
-        filteredUsers = filteredUsers.filter(user =>
+        filteredUsers = filteredUsers.filter((user: User) =>
           user.role === roleFilter
         );
       }
@@ -97,7 +70,7 @@ export default function UsersView({ role }: UsersViewProps) {
       // Фильтрация по статусу
       if (statusFilter) {
         const isActive = statusFilter === 'active';
-        filteredUsers = filteredUsers.filter(user =>
+        filteredUsers = filteredUsers.filter((user: User) =>
           user.is_active === isActive
         );
       }
@@ -105,7 +78,7 @@ export default function UsersView({ role }: UsersViewProps) {
       setUsers(filteredUsers);
       setTotalPages(Math.ceil(filteredUsers.length / 10));
     } catch (err) {
-      setError('Ошибка загрузки пользователей');
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки пользователей');
       console.error('Load users error:', err);
     } finally {
       setLoading(false);
@@ -118,13 +91,37 @@ export default function UsersView({ role }: UsersViewProps) {
 
   const handleStatusToggle = async (userId: string, isActive: boolean) => {
     try {
-      // Здесь будет реальный API запрос
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Токен не найден');
+        return;
+      }
+
+      const response = await fetch('/api/users', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: userId,
+          is_active: isActive
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка обновления статуса');
+      }
+
+      // Обновляем локальное состояние
       setUsers(prev => prev.map(user =>
         user.id === userId
           ? { ...user, is_active: isActive, updated_at: new Date().toISOString() }
           : user
       ));
     } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка обновления статуса');
       console.error('Status toggle error:', err);
     }
   };
@@ -236,19 +233,21 @@ export default function UsersView({ role }: UsersViewProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Пользователи</h1>
-        <Button>
-          Добавить пользователя
-        </Button>
+    <div className="content-container">
+      <div className="page-header">
+        <h1 className="page-title">Пользователи</h1>
+        <div className="page-actions">
+          <Button>
+            Добавить пользователя
+          </Button>
+        </div>
       </div>
 
       {/* Фильтры */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="filters-container">
+        <div className="filters-grid">
+          <div className="filter-field">
+            <label className="filter-label">
               Поиск
             </label>
             <input
@@ -256,17 +255,17 @@ export default function UsersView({ role }: UsersViewProps) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Поиск по имени пользователя или email..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-input filter-input--search"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="filter-field">
+            <label className="filter-label">
               Роль
             </label>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select"
             >
               <option value="">Все роли</option>
               <option value="admin">Администратор</option>
@@ -274,14 +273,14 @@ export default function UsersView({ role }: UsersViewProps) {
               <option value="hr">HR</option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="filter-field">
+            <label className="filter-label">
               Статус
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select"
             >
               <option value="">Все статусы</option>
               <option value="active">Активные</option>
@@ -292,7 +291,7 @@ export default function UsersView({ role }: UsersViewProps) {
       </div>
 
       {/* Таблица пользователей */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="table-container table-container--modern">
         <Table
           data={users}
           columns={columns}
@@ -312,26 +311,26 @@ export default function UsersView({ role }: UsersViewProps) {
       )}
 
       {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Всего пользователей</div>
-          <div className="text-2xl font-bold text-gray-900">{users.length}</div>
+      <div className="stats-container">
+        <div className="stats-card stats-card--gradient">
+          <div className="stats-label">Всего пользователей</div>
+          <div className="stats-value">{users.length}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Администраторы</div>
-          <div className="text-2xl font-bold text-red-600">
+        <div className="stats-card stats-card--red">
+          <div className="stats-label">Администраторы</div>
+          <div className="stats-value stats-value--red">
             {users.filter(u => u.role === 'admin').length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">HR</div>
-          <div className="text-2xl font-bold text-green-600">
+        <div className="stats-card stats-card--green">
+          <div className="stats-label">HR</div>
+          <div className="stats-value stats-value--green">
             {users.filter(u => u.role === 'hr').length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Активные</div>
-          <div className="text-2xl font-bold text-blue-600">
+        <div className="stats-card stats-card--blue">
+          <div className="stats-label">Активные</div>
+          <div className="stats-value stats-value--blue">
             {users.filter(u => u.is_active).length}
           </div>
         </div>

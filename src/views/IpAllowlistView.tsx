@@ -284,21 +284,23 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">IP Allowlist</h1>
-        <Button onClick={() => setShowAddForm(true)}>
-          Добавить IP адрес
-        </Button>
+    <div className="content-container">
+      <div className="page-header">
+        <h1 className="page-title">IP Allowlist</h1>
+        <div className="page-actions">
+          <Button onClick={() => setShowAddForm(true)}>
+            Добавить IP адрес
+          </Button>
+        </div>
       </div>
 
       {/* Форма добавления */}
       {showAddForm && (
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
+        <div className="filters-container">
           <h3 className="text-lg font-medium mb-4">Добавить IP адрес</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="filters-grid">
+            <div className="filter-field">
+              <label className="filter-label">
                 IP адрес (CIDR)
               </label>
               <input
@@ -306,11 +308,11 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
                 value={newIp.ip_address}
                 onChange={(e) => setNewIp({ ...newIp, ip_address: e.target.value })}
                 placeholder="192.168.1.0/24"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="filter-input"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="filter-field">
+              <label className="filter-label">
                 Описание
               </label>
               <input
@@ -318,7 +320,7 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
                 value={newIp.description}
                 onChange={(e) => setNewIp({ ...newIp, description: e.target.value })}
                 placeholder="Описание IP адреса"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="filter-input"
               />
             </div>
           </div>
@@ -343,10 +345,10 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
       )}
 
       {/* Фильтры */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="filters-container">
+        <div className="filters-grid">
+          <div className="filter-field">
+            <label className="filter-label">
               Поиск
             </label>
             <input
@@ -354,17 +356,17 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Поиск по IP адресу или описанию..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-input filter-input--search"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="filter-field">
+            <label className="filter-label">
               Статус
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select"
             >
               <option value="">Все статусы</option>
               <option value="active">Активные</option>
@@ -375,7 +377,7 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
       </div>
 
       {/* Таблица IP списка */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="table-container table-container--modern">
         <Table
           data={ipList}
           columns={columns}
@@ -395,20 +397,20 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
       )}
 
       {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Всего IP адресов</div>
-          <div className="text-2xl font-bold text-gray-900">{ipList.length}</div>
+      <div className="stats-container">
+        <div className="stats-card stats-card--gradient">
+          <div className="stats-label">Всего IP адресов</div>
+          <div className="stats-value">{ipList.length}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Активные</div>
-          <div className="text-2xl font-bold text-green-600">
+        <div className="stats-card stats-card--green">
+          <div className="stats-label">Активные</div>
+          <div className="stats-value stats-value--green">
             {ipList.filter(item => item.is_active).length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Неактивные</div>
-          <div className="text-2xl font-bold text-red-600">
+        <div className="stats-card stats-card--red">
+          <div className="stats-label">Неактивные</div>
+          <div className="stats-value stats-value--red">
             {ipList.filter(item => !item.is_active).length}
           </div>
         </div>

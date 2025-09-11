@@ -4,7 +4,7 @@ import CandidatesView from '@/views/CandidatesView';
 export default function Page() {
   return (
     <Layout>
-      <CandidatesView role="hr" />
+      <CandidatesView />
     </Layout>
   );
 }

@@ -30,7 +30,7 @@ body {
 
 .layout__main {
   flex: 1;
-  margin-left: 280px; // Sidebar width
+  margin-left: 320px; // Sidebar width + gap
   padding: 24px;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: calc(100vh - 64px);
@@ -42,7 +42,7 @@ body {
 
 // When sidebar is collapsed
 .layout__main.sidebar-collapsed {
-  margin-left: 80px;
+  margin-left: 110px; // Collapsed sidebar width + gap
 }
 
 .main { 

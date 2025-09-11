@@ -4,10 +4,7 @@
 
 // Styles for components
 @import './Header/Header.scss';
-
-// @import './WhyChooseUs/WhyChooseUs.scss'
 @import './Card/Card.scss';
-// @import './Footer/Footer.scss';
 @import './Button/Button.scss';
 @import './Avatar/Avatar.scss';
 @import './Pagination/Pagination.scss';
@@ -15,6 +12,9 @@
 @import './Layout/Layout.scss';
 @import './Table/Table.scss';
 @import './Sidebar/Sidebar.scss';
+@import './Filters/Filters.scss';
+@import './Stats/Stats.scss';
+@import './TableContainer/TableContainer.scss';
 
 // Global input styles
 .field {
