@@ -1,10 +1,10 @@
 import Layout from '@/components/Layout/Layout';
-import StaffView from '@/views/StaffView';
+import EmployeesView from '@/views/EmployeesView';
 
 export default function Page() {
   return (
     <Layout>
-      <StaffView role="hr" />
+      <EmployeesView />
     </Layout>
   );
 }

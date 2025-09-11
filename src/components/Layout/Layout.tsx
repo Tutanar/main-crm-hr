@@ -14,20 +14,17 @@ export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  useEffect(() => {
-    const handleToggleSidebar = () => {
-      setIsSidebarCollapsed(prev => !prev);
-    };
-
-    window.addEventListener('toggleSidebar', handleToggleSidebar);
-    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
-  }, []);
+  const handleToggleSidebar = (isCollapsed: boolean) => {
+    setIsSidebarCollapsed(isCollapsed);
+  };
 
   useEffect(() => {
+    console.log('Layout Debug:', { loading, isAuthenticated, role });
     if (!loading && !isAuthenticated) {
+      console.log('Redirecting to login - not authenticated');
       router.push('/login');
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, isAuthenticated, router, role]);
 
   if (loading) {
     return (
@@ -55,9 +52,12 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="layout">
-      <Header />
+      <Header 
+        isSidebarCollapsed={isSidebarCollapsed} 
+        onToggleSidebar={handleToggleSidebar} 
+      />
       <div className="layout__content">
-        <Sidebar />
+        <Sidebar isCollapsed={isSidebarCollapsed} onToggle={handleToggleSidebar} />
         <main className={`layout__main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           {children}
         </main>

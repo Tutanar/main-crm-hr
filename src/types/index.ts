@@ -87,3 +87,82 @@ export interface FilterConfig {
   role?: string;
   is_active?: boolean;
 }
+
+// Справочные типы (получаются из базы данных)
+export interface ReferenceItem {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  is_active: boolean;
+}
+
+export interface EmployeeType extends ReferenceItem {}
+export interface Status extends ReferenceItem {
+  employee_type_id: number;
+}
+export interface Segment extends ReferenceItem {}
+export interface Team extends ReferenceItem {}
+export interface Language extends ReferenceItem {}
+export interface Source extends ReferenceItem {}
+
+// Основные типы для людей
+export interface Person {
+  id: number;
+  name: string;
+  phone?: string;
+  registration_date: string;
+  status_code: string;
+  status_name: string;
+  employee_type_code: string;
+  employee_type_name: string;
+  comment?: string;
+  last_comment_date?: string;
+  segment_code: string;
+  segment_name: string;
+  team_code: string;
+  team_name: string;
+  language_code: string;
+  language_name: string;
+  source_code: string;
+  source_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PersonCreateRequest {
+  name: string;
+  phone?: string;
+  status_id: number;
+  employee_type_id: number;
+  comment?: string;
+  segment_id: number;
+  team_id: number;
+  language_id: number;
+  source_id: number;
+}
+
+export interface PersonUpdateRequest {
+  name?: string;
+  phone?: string;
+  status_id?: number;
+  employee_type_id?: number;
+  comment?: string;
+  last_comment_date?: string;
+  segment_id?: number;
+  team_id?: number;
+  language_id?: number;
+  source_id?: number;
+}
+
+export interface PeopleFilterConfig {
+  search?: string;
+  status_id?: number;
+  employee_type_id?: number;
+  segment_id?: number;
+  team_id?: number;
+  language_id?: number;
+  source_id?: number;
+  date_from?: string;
+  date_to?: string;
+}

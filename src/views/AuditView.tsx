@@ -34,85 +34,27 @@ export default function AuditView({ role }: AuditViewProps) {
         return;
       }
 
-      // Моковые данные аудита
-      const mockAuditLogs: AuditLog[] = [
-        {
-          id: '1',
-          user_id: '1',
-          action: 'LOGIN',
-          table_name: 'users',
-          record_id: '1',
-          old_values: null,
-          new_values: { last_login: '2024-01-15T10:00:00Z' },
-          ip_address: '192.168.1.100',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          created_at: '2024-01-15T10:00:00Z'
+      // Реальный API запрос к Hasura
+      const response = await fetch('/api/audit', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        {
-          id: '2',
-          user_id: '1',
-          action: 'CREATE',
-          table_name: 'candidates',
-          record_id: '1',
-          old_values: null,
-          new_values: {
-            first_name: 'Иван',
-            last_name: 'Петров',
-            email: 'ivan.petrov@example.com',
-            position: 'Frontend Developer'
-          },
-          ip_address: '192.168.1.100',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          created_at: '2024-01-15T10:15:00Z'
-        },
-        {
-          id: '3',
-          user_id: '2',
-          action: 'UPDATE',
-          table_name: 'candidates',
-          record_id: '1',
-          old_values: { status: 'NEW' },
-          new_values: { status: 'REVIEWING' },
-          ip_address: '192.168.1.101',
-          user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-          created_at: '2024-01-15T11:30:00Z'
-        },
-        {
-          id: '4',
-          user_id: '1',
-          action: 'CREATE',
-          table_name: 'staff',
-          record_id: '1',
-          old_values: null,
-          new_values: {
-            first_name: 'Анна',
-            last_name: 'Иванова',
-            email: 'anna.ivanova@company.com',
-            position: 'Senior Frontend Developer',
-            salary: 150000
-          },
-          ip_address: '192.168.1.100',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          created_at: '2024-01-15T14:45:00Z'
-        },
-        {
-          id: '5',
-          user_id: '2',
-          action: 'LOGOUT',
-          table_name: 'users',
-          record_id: '2',
-          old_values: null,
-          new_values: null,
-          ip_address: '192.168.1.101',
-          user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-          created_at: '2024-01-15T16:20:00Z'
-        }
-      ];
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка загрузки аудита');
+      }
+
+      const data = await response.json();
+      const auditLogsData = data.data || [];
 
       // Фильтрация по поиску
-      let filteredLogs = mockAuditLogs;
+      let filteredLogs = auditLogsData;
       if (searchTerm) {
-        filteredLogs = mockAuditLogs.filter(log =>
+        filteredLogs = auditLogsData.filter((log: AuditLog) =>
           log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
           log.table_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           log.record_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -122,14 +64,14 @@ export default function AuditView({ role }: AuditViewProps) {
 
       // Фильтрация по действию
       if (actionFilter) {
-        filteredLogs = filteredLogs.filter(log =>
+        filteredLogs = filteredLogs.filter((log: AuditLog) =>
           log.action === actionFilter
         );
       }
 
       // Фильтрация по таблице
       if (tableFilter) {
-        filteredLogs = filteredLogs.filter(log =>
+        filteredLogs = filteredLogs.filter((log: AuditLog) =>
           log.table_name === tableFilter
         );
       }
@@ -137,7 +79,7 @@ export default function AuditView({ role }: AuditViewProps) {
       setAuditLogs(filteredLogs);
       setTotalPages(Math.ceil(filteredLogs.length / 10));
     } catch (err) {
-      setError('Ошибка загрузки аудита');
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки аудита');
       console.error('Load audit logs error:', err);
     } finally {
       setLoading(false);
@@ -247,19 +189,21 @@ export default function AuditView({ role }: AuditViewProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Журнал аудита</h1>
-        <Button onClick={loadAuditLogs}>
-          Обновить
-        </Button>
+    <div className="content-container">
+      <div className="page-header">
+        <h1 className="page-title">Журнал аудита</h1>
+        <div className="page-actions">
+          <Button onClick={loadAuditLogs}>
+            Обновить
+          </Button>
+        </div>
       </div>
 
       {/* Фильтры */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="filters-container">
+        <div className="filters-grid">
+          <div className="filter-field">
+            <label className="filter-label">
               Поиск
             </label>
             <input
@@ -267,17 +211,17 @@ export default function AuditView({ role }: AuditViewProps) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Поиск по действию, таблице или IP..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-input filter-input--search"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="filter-field">
+            <label className="filter-label">
               Действие
             </label>
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select"
             >
               <option value="">Все действия</option>
               <option value="CREATE">Создание</option>
@@ -287,14 +231,14 @@ export default function AuditView({ role }: AuditViewProps) {
               <option value="LOGOUT">Выход</option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="filter-field">
+            <label className="filter-label">
               Таблица
             </label>
             <select
               value={tableFilter}
               onChange={(e) => setTableFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="filter-select"
             >
               <option value="">Все таблицы</option>
               <option value="users">users</option>
@@ -307,7 +251,7 @@ export default function AuditView({ role }: AuditViewProps) {
       </div>
 
       {/* Таблица аудита */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="table-container table-container--modern">
         <Table
           data={auditLogs}
           columns={columns}
@@ -327,26 +271,26 @@ export default function AuditView({ role }: AuditViewProps) {
       )}
 
       {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Всего записей</div>
-          <div className="text-2xl font-bold text-gray-900">{auditLogs.length}</div>
+      <div className="stats-container">
+        <div className="stats-card stats-card--gradient">
+          <div className="stats-label">Всего записей</div>
+          <div className="stats-value">{auditLogs.length}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Созданий</div>
-          <div className="text-2xl font-bold text-green-600">
+        <div className="stats-card stats-card--green">
+          <div className="stats-label">Созданий</div>
+          <div className="stats-value stats-value--green">
             {auditLogs.filter(log => log.action === 'CREATE').length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Обновлений</div>
-          <div className="text-2xl font-bold text-blue-600">
+        <div className="stats-card stats-card--blue">
+          <div className="stats-label">Обновлений</div>
+          <div className="stats-value stats-value--blue">
             {auditLogs.filter(log => log.action === 'UPDATE').length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Входов в систему</div>
-          <div className="text-2xl font-bold text-purple-600">
+        <div className="stats-card stats-card--purple">
+          <div className="stats-label">Входов в систему</div>
+          <div className="stats-value stats-value--purple">
             {auditLogs.filter(log => log.action === 'LOGIN').length}
           </div>
         </div>

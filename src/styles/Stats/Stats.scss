@@ -1,0 +1,156 @@
+// Стили для статистических карточек
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.stats-card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+  
+  &--gradient {
+    background: linear-gradient(135deg, #fef7ff, #fdf2f8);
+    border-color: #f3e8ff;
+    
+    &:hover {
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+    }
+  }
+  
+  &--blue {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-color: #bfdbfe;
+    
+    &:hover {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    }
+  }
+  
+  &--green {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: #bbf7d0;
+    
+    &:hover {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    }
+  }
+  
+  &--purple {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    border-color: #e9d5ff;
+    
+    &:hover {
+      background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    }
+  }
+  
+  &--red {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-color: #fecaca;
+    
+    &:hover {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+    }
+  }
+  
+  &--yellow {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: #fde68a;
+    
+    &:hover {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+    }
+  }
+}
+
+.stats-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.stats-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+  
+  &--blue {
+    color: #2563eb;
+  }
+  
+  &--green {
+    color: #059669;
+  }
+  
+  &--purple {
+    color: #7c3aed;
+  }
+  
+  &--red {
+    color: #dc2626;
+  }
+  
+  &--yellow {
+    color: #d97706;
+  }
+}
+
+// Простые стили для статистики (альтернатива)
+.stats-simple {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.stats-card-simple {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.stats-label-simple {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.stats-value-simple {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  
+  &--blue {
+    color: #2563eb;
+  }
+  
+  &--green {
+    color: #059669;
+  }
+  
+  &--purple {
+    color: #7c3aed;
+  }
+  
+  &--red {
+    color: #dc2626;
+  }
+}

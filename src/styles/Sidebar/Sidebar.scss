@@ -37,41 +37,7 @@
     }
   }
 
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
 
-  &__toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: rgba(236, 72, 153, 0.1);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #ec4899;
-
-    &:hover {
-      background: rgba(236, 72, 153, 0.2);
-      transform: scale(1.05);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-
-  &__toggle-icon {
-    transition: transform 0.3s ease;
-  }
 
   &__nav {
     flex: 1;
@@ -104,6 +70,11 @@
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
 
     &:hover {
       background: rgba(236, 72, 153, 0.1);

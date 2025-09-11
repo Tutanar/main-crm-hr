@@ -23,8 +23,9 @@ function validateJWTToken(token: string): { valid: boolean; payload?: any; error
       algorithms: [jwtSecret.type] 
     }) as any;
 
-    // Проверяем обязательные поля
-    if (!payload.sub || !payload.role || !payload.username) {
+    // Проверяем обязательные поля (минимальный набор)
+    // Наш login токен формирует поля: sub, role, email, full_name, iat, exp
+    if (!payload.sub || !payload.role) {
       return { valid: false, error: 'Invalid token payload' };
     }
 
@@ -64,7 +65,6 @@ async function checkUserInDatabase(userId: string): Promise<{ exists: boolean; u
           query CheckUser($id: uuid!) {
             users_by_pk(id: $id) {
               id
-              username
               email
               role
               is_active
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ValidateR
       valid: true,
       user: {
         id: userCheck.user.id,
-        username: userCheck.user.username,
+        username: userCheck.user.email || userCheck.user.id,
         role: userCheck.user.role,
       },
       timestamp,
