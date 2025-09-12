@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { api } from '@/lib/api';
-import Button from '@/components/Button/Button';
+import { Button } from '@chakra-ui/react';
 
 export default function HasuraTest() {
   const [result, setResult] = useState<string>('');

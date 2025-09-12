@@ -5,9 +5,9 @@
   bottom: 0;
   width: 280px;
   z-index: 25;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--sidebar-surface);
   backdrop-filter: blur(12px);
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid var(--border);
   padding: 20px 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -77,14 +77,14 @@
     cursor: pointer;
 
     &:hover {
-      background: rgba(236, 72, 153, 0.1);
-      color: #ec4899;
+      background: var(--pink-25);
+      color: var(--pink-500);
       transform: translateX(4px);
     }
 
     &--active {
-      background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.1));
-      color: #ec4899;
+      background: linear-gradient(135deg, rgba(63, 115, 235, 0.15), rgba(63, 115, 235, 0.1));
+      color: var(--pink-500);
       font-weight: 600;
       box-shadow: 0 2px 8px rgba(236, 72, 153, 0.2);
 
@@ -96,7 +96,7 @@
         transform: translateY(-50%);
         width: 3px;
         height: 20px;
-        background: #ec4899;
+        background: var(--pink-500);
         border-radius: 0 2px 2px 0;
       }
     }

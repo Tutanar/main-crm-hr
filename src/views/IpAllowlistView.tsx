@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { type IpAllowlist } from '@/types';
-import Button from '@/components/Button/Button';
-import Table from '@/components/Table/Table';
+import { Box, Button, Card, CardHeader, CardBody, Heading, Input, Stack, Table, Thead, Tbody, Tr, Td, Th, Text, Badge as ChakraBadge, Code } from '@chakra-ui/react';
 import Pagination from '@/components/Pagination/Pagination';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 
@@ -18,8 +17,10 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
   const [error, setError] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  
+  const [ipFilter, setIpFilter] = useState('');
+  const [descFilter, setDescFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newIp, setNewIp] = useState({ ip_address: '', description: '' });
 
@@ -50,26 +51,8 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
 
       const data = await response.json();
       const ipListData = data.data || [];
-
-      // Фильтрация по поиску
-      let filteredList = ipListData;
-      if (searchTerm) {
-        filteredList = ipListData.filter((item: IpAllowlist) =>
-          item.ip_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (item.description || '').toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      // Фильтрация по статусу
-      if (statusFilter) {
-        const isActive = statusFilter === 'active';
-        filteredList = filteredList.filter((item: IpAllowlist) =>
-          item.is_active === isActive
-        );
-      }
-
-      setIpList(filteredList);
-      setTotalPages(Math.ceil(filteredList.length / 10));
+      setIpList(ipListData);
+      setTotalPages(Math.ceil(ipListData.length / 10));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка загрузки IP списка');
       console.error('Load IP list error:', err);
@@ -80,7 +63,7 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
 
   useEffect(() => {
     loadIpList();
-  }, [searchTerm, statusFilter]);
+  }, []);
 
   const handleStatusToggle = async (ipId: string, isActive: boolean) => {
     try {
@@ -209,11 +192,7 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
     {
       key: 'ip_address',
       label: 'IP адрес',
-      render: (item: IpAllowlist) => (
-        <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-          {item.ip_address}
-        </code>
-      )
+      render: (item: IpAllowlist) => <Code>{item.ip_address}</Code>
     },
     {
       key: 'description',
@@ -224,13 +203,9 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
       key: 'status',
       label: 'Статус',
       render: (item: IpAllowlist) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          item.is_active 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
+        <ChakraBadge colorScheme={item.is_active ? 'green' : 'red'}>
           {item.is_active ? 'Активен' : 'Неактивен'}
-        </span>
+        </ChakraBadge>
       )
     },
     {
@@ -246,7 +221,7 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
           <Button
             size="sm"
             onClick={() => handleStatusToggle(item.id, !item.is_active)}
-            variant={item.is_active ? 'outline' : 'primary'}
+            variant={item.is_active ? 'outline' : 'solid'}
           >
             {item.is_active ? 'Деактивировать' : 'Активировать'}
           </Button>
@@ -284,105 +259,69 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
   }
 
   return (
-    <div className="content-container">
-      <div className="page-header">
-        <h1 className="page-title">IP Allowlist</h1>
-        <div className="page-actions">
-          <Button onClick={() => setShowAddForm(true)}>
-            Добавить IP адрес
-          </Button>
-        </div>
-      </div>
+    <Box>
+      <Card bg="bg.subtle" borderColor="border">
+        <CardHeader display="flex" justifyContent="space-between" alignItems="center">
+          <Heading size="md">IP Allowlist</Heading>
+          <Button variant="outline" onClick={() => setShowAddForm(true)}>Добавить IP адрес</Button>
+        </CardHeader>
+      </Card>
 
       {/* Форма добавления */}
       {showAddForm && (
-        <div className="filters-container">
-          <h3 className="text-lg font-medium mb-4">Добавить IP адрес</h3>
-          <div className="filters-grid">
-            <div className="filter-field">
-              <label className="filter-label">
-                IP адрес (CIDR)
-              </label>
-              <input
-                type="text"
-                value={newIp.ip_address}
-                onChange={(e) => setNewIp({ ...newIp, ip_address: e.target.value })}
-                placeholder="192.168.1.0/24"
-                className="filter-input"
-              />
-            </div>
-            <div className="filter-field">
-              <label className="filter-label">
-                Описание
-              </label>
-              <input
-                type="text"
-                value={newIp.description}
-                onChange={(e) => setNewIp({ ...newIp, description: e.target.value })}
-                placeholder="Описание IP адреса"
-                className="filter-input"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 mt-4">
-            <Button 
-              onClick={handleAddIp}
-              disabled={!validateIpAddress(newIp.ip_address)}
-            >
-              Добавить
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setShowAddForm(false);
-                setNewIp({ ip_address: '', description: '' });
-              }}
-            >
-              Отмена
-            </Button>
-          </div>
-        </div>
+        <Card mt={5} bg="bg.subtle" borderColor="border">
+          <CardBody>
+            <Heading size="sm" mb={3}>Добавить IP адрес</Heading>
+            <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
+              <Input placeholder="192.168.1.0/24" value={newIp.ip_address} onChange={(e)=>setNewIp({ ...newIp, ip_address: e.target.value })} />
+              <Input placeholder="Описание IP адреса" value={newIp.description} onChange={(e)=>setNewIp({ ...newIp, description: e.target.value })} />
+            </Stack>
+            <Stack direction="row" gap={3} mt={4}>
+              <Button colorScheme="brand" onClick={handleAddIp} disabled={!validateIpAddress(newIp.ip_address)}>Добавить</Button>
+              <Button variant="outline" onClick={()=>{ setShowAddForm(false); setNewIp({ ip_address: '', description: '' }); }}>Отмена</Button>
+            </Stack>
+          </CardBody>
+        </Card>
       )}
 
-      {/* Фильтры */}
-      <div className="filters-container">
-        <div className="filters-grid">
-          <div className="filter-field">
-            <label className="filter-label">
-              Поиск
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Поиск по IP адресу или описанию..."
-              className="filter-input filter-input--search"
-            />
-          </div>
-          <div className="filter-field">
-            <label className="filter-label">
-              Статус
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Все статусы</option>
-              <option value="active">Активные</option>
-              <option value="inactive">Неактивные</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      {/* Таблица фильтров */}
+      <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+        <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+          <Tbody>
+            <Tr>
+              <Td width="12%"><Input size="sm" placeholder="IP" value={ipFilter} onChange={(e)=>setIpFilter(e.target.value)} /></Td>
+              <Td width="15%"><Input size="sm" placeholder="Description" value={descFilter} onChange={(e)=>setDescFilter(e.target.value)} /></Td>
+              <Td width="18%"><Input size="sm" placeholder="Status" value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} /></Td>
+              <Td width="20%" />
+            </Tr>
+          </Tbody>
+        </Table>
+      </Box>
 
       {/* Таблица IP списка */}
       <div className="table-container table-container--modern">
-        <Table
-          data={ipList}
-          columns={columns}
-          loading={loading}
-        />
+        <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+          <Thead>
+            <Tr>
+              {columns.map((c) => (
+                <Th key={c.key}>{c.label}</Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {ipList
+              .filter(r => (ipFilter ? r.ip_address.toLowerCase().includes(ipFilter.toLowerCase()) : true))
+              .filter(r => (descFilter ? (r.description || '').toLowerCase().includes(descFilter.toLowerCase()) : true))
+              .filter(r => (statusFilter ? (statusFilter==='active'?r.is_active:!r.is_active) : true))
+              .map((row) => (
+                <Tr key={row.id}>
+                  {columns.map((c) => (
+                    <Td key={c.key}>{c.render(row) as any}</Td>
+                  ))}
+                </Tr>
+              ))}
+          </Tbody>
+        </Table>
       </div>
 
       {/* Пагинация */}
@@ -415,6 +354,6 @@ export default function IpAllowlistView({ role }: IpAllowlistViewProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 }

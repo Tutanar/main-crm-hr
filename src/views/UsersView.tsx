@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { type User } from '@/types';
-import Button from '@/components/Button/Button';
-import Table from '@/components/Table/Table';
+import { Box, Button, Card, CardHeader, CardBody, Heading, Input, Stack, Table, Thead, Tbody, Tr, Td, Th, Text, Badge as ChakraBadge } from '@chakra-ui/react';
 import Pagination from '@/components/Pagination/Pagination';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 
@@ -18,9 +17,11 @@ export default function UsersView({ role }: UsersViewProps) {
   const [error, setError] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+
+  const [nameFilter, setNameFilter] = useState('');
+  const [emailFilter, setEmailFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Загрузка пользователей
   const loadUsers = async () => {
@@ -50,33 +51,8 @@ export default function UsersView({ role }: UsersViewProps) {
 
       const data = await response.json();
       const usersData = data.data || [];
-
-      // Фильтрация по поиску
-      let filteredUsers = usersData;
-      if (searchTerm) {
-        filteredUsers = usersData.filter((user: User) =>
-          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      // Фильтрация по роли
-      if (roleFilter) {
-        filteredUsers = filteredUsers.filter((user: User) =>
-          user.role === roleFilter
-        );
-      }
-
-      // Фильтрация по статусу
-      if (statusFilter) {
-        const isActive = statusFilter === 'active';
-        filteredUsers = filteredUsers.filter((user: User) =>
-          user.is_active === isActive
-        );
-      }
-
-      setUsers(filteredUsers);
-      setTotalPages(Math.ceil(filteredUsers.length / 10));
+      setUsers(usersData);
+      setTotalPages(Math.ceil(usersData.length / 10));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка загрузки пользователей');
       console.error('Load users error:', err);
@@ -87,7 +63,7 @@ export default function UsersView({ role }: UsersViewProps) {
 
   useEffect(() => {
     loadUsers();
-  }, [searchTerm, roleFilter, statusFilter]);
+  }, []);
 
   const handleStatusToggle = async (userId: string, isActive: boolean) => {
     try {
@@ -136,18 +112,9 @@ export default function UsersView({ role }: UsersViewProps) {
   };
 
   const getRoleBadge = (role: string) => {
-    const roleConfig = {
-      'admin': { color: 'bg-red-100 text-red-800', text: 'Администратор' },
-      'chief-hr': { color: 'bg-blue-100 text-blue-800', text: 'Главный HR' },
-      'hr': { color: 'bg-green-100 text-green-800', text: 'HR' }
-    };
-
-    const config = roleConfig[role as keyof typeof roleConfig] || { color: 'bg-gray-100 text-gray-800', text: role };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-        {config.text}
-      </span>
-    );
+    const map: Record<string, string> = { admin: 'red', 'chief-hr': 'blue', hr: 'green' };
+    const scheme = map[role] || 'gray';
+    return <ChakraBadge colorScheme={scheme}>{getRoleDisplayName(role)}</ChakraBadge>;
   };
 
   const formatDate = (dateString: string) => {
@@ -156,9 +123,9 @@ export default function UsersView({ role }: UsersViewProps) {
 
   const columns = [
     {
-      key: 'username',
+      key: 'full_name',
       label: 'Имя пользователя',
-      render: (user: User) => user.username
+      render: (user: User) => user.full_name
     },
     {
       key: 'email',
@@ -174,13 +141,9 @@ export default function UsersView({ role }: UsersViewProps) {
       key: 'status',
       label: 'Статус',
       render: (user: User) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          user.is_active 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
+        <ChakraBadge colorScheme={user.is_active ? 'green' : 'red'}>
           {user.is_active ? 'Активен' : 'Неактивен'}
-        </span>
+        </ChakraBadge>
       )
     },
     {
@@ -196,7 +159,7 @@ export default function UsersView({ role }: UsersViewProps) {
           <Button
             size="sm"
             onClick={() => handleStatusToggle(user.id, !user.is_active)}
-            variant={user.is_active ? 'outline' : 'primary'}
+            variant={user.is_active ? 'outline' : 'solid'}
           >
             {user.is_active ? 'Деактивировать' : 'Активировать'}
           </Button>
@@ -233,71 +196,56 @@ export default function UsersView({ role }: UsersViewProps) {
   }
 
   return (
-    <div className="content-container">
-      <div className="page-header">
-        <h1 className="page-title">Пользователи</h1>
-        <div className="page-actions">
-          <Button>
-            Добавить пользователя
-          </Button>
-        </div>
-      </div>
+    <Box>
+      <Card bg="bg.subtle" borderColor="border">
+        <CardHeader display="flex" justifyContent="space-between" alignItems="center">
+          <Heading size="md">Пользователи</Heading>
+          <Button variant="outline">Добавить пользователя</Button>
+        </CardHeader>
+      </Card>
 
       {/* Фильтры */}
-      <div className="filters-container">
-        <div className="filters-grid">
-          <div className="filter-field">
-            <label className="filter-label">
-              Поиск
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Поиск по имени пользователя или email..."
-              className="filter-input filter-input--search"
-            />
-          </div>
-          <div className="filter-field">
-            <label className="filter-label">
-              Роль
-            </label>
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Все роли</option>
-              <option value="admin">Администратор</option>
-              <option value="chief-hr">Главный HR</option>
-              <option value="hr">HR</option>
-            </select>
-          </div>
-          <div className="filter-field">
-            <label className="filter-label">
-              Статус
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Все статусы</option>
-              <option value="active">Активные</option>
-              <option value="inactive">Неактивные</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      {/* Таблица фильтров */}
+      <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+        <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+          <Tbody>
+            <Tr>
+              <Td width="10%"><Input size="sm" placeholder="Name" value={nameFilter} onChange={(e)=>setNameFilter(e.target.value)} /></Td>
+              <Td width="10%"><Input size="sm" placeholder="Email" value={emailFilter} onChange={(e)=>setEmailFilter(e.target.value)} /></Td>
+              <Td width="10%"><Input size="sm" placeholder="Role" value={roleFilter} onChange={(e)=>setRoleFilter(e.target.value)} /></Td>
+              <Td width="10%"><Input size="sm" placeholder="Status" value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} /></Td>
+              <Td width="18%" />
+            </Tr>
+          </Tbody>
+        </Table>
+      </Box>
 
       {/* Таблица пользователей */}
-      <div className="table-container table-container--modern">
-        <Table
-          data={users}
-          columns={columns}
-          loading={loading}
-        />
-      </div>
+      <Box mt={2} className="table-container table-container--modern">
+        <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+          <Thead>
+            <Tr>
+              {columns.map((c) => (
+                <Th key={c.key}>{c.label}</Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {users
+              .filter(u => (nameFilter ? u.full_name.toLowerCase().includes(nameFilter.toLowerCase()) : true))
+              .filter(u => (emailFilter ? u.email.toLowerCase().includes(emailFilter.toLowerCase()) : true))
+              .filter(u => (roleFilter ? u.role.toLowerCase().includes(roleFilter.toLowerCase()) : true))
+              .filter(u => (statusFilter ? (statusFilter==='active'?u.is_active:!u.is_active) : true))
+              .map((u) => (
+                <Tr key={u.id} bg="bg.subtle">
+                  {columns.map((c) => (
+                    <Td key={c.key}>{c.render(u) as any}</Td>
+                  ))}
+                </Tr>
+              ))}
+          </Tbody>
+        </Table>
+      </Box>
 
       {/* Пагинация */}
       {totalPages > 1 && (
@@ -335,6 +283,6 @@ export default function UsersView({ role }: UsersViewProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 }

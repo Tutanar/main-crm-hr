@@ -1,7 +1,11 @@
 'use client';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 import { useRouter, usePathname } from 'next/navigation';
-import Button from '@/components/Button/Button';
+import { Button } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
+import { useColorMode } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
 
 interface HeaderProps {
   isSidebarCollapsed: boolean;
@@ -9,9 +13,10 @@ interface HeaderProps {
 }
 
 export default function Header({ isSidebarCollapsed, onToggleSidebar }: HeaderProps) {
-  const { role, isAuthenticated, loading,  logout } = useRole();
+  const { role, isAuthenticated, loading,  logout, user } = useRole();
   const router = useRouter();
   const pathname = usePathname();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   if (loading || !isAuthenticated || !role) {
     return null;
@@ -37,6 +42,10 @@ export default function Header({ isSidebarCollapsed, onToggleSidebar }: HeaderPr
 
   const handleToggleSidebar = () => {
     onToggleSidebar(!isSidebarCollapsed);
+  };
+
+  const handleProfileClick = () => {
+    router.push('/profile');
   };
 
   return (
@@ -80,12 +89,37 @@ export default function Header({ isSidebarCollapsed, onToggleSidebar }: HeaderPr
             )}
           </button>
         </div>
+
+        <div className="header__center">
+          <h1 className="header__title">CRM HR System</h1>
+          <IconButton
+            aria-label={colorMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            title={colorMode === 'light' ? 'Dark mode' : 'Light mode'}
+            variant="outline"
+            size="sm"
+            bg="transparent"
+            onClick={toggleColorMode}
+            icon={<Box as="span" fontSize="lg" lineHeight="1">{colorMode === 'light' ? '🌞' : '🌙'}</Box>}
+          />
+        </div>
         
         <div className="header__right">
-          <div className="header__user-info">
-            <h1 className="header__title">CRM HR System</h1>
-            <span className="header__role">{getRoleDisplayName(role)}</span>
-          </div>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label="Открыть профиль"
+              title="Профиль"
+              variant="outline"
+              size="sm"
+              borderRadius="full"
+              icon={<Box as="span" fontSize="md" lineHeight="1">👤</Box>}
+            />
+            <MenuList>
+              <MenuItem isDisabled>{(user && (user.full_name || user.username || user.email)) }</MenuItem>
+              <MenuItem onClick={() => router.push('/2fa')}>Two‑Factor Auth</MenuItem>
+              <MenuItem onClick={logout}>Log out</MenuItem>
+            </MenuList>
+          </Menu>
         </div>
       </div>
     </header>

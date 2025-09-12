@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import Button from '@/components/Button/Button';
+import { Button } from '@chakra-ui/react';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 import { type LoginRequest } from '@/lib/api';
 

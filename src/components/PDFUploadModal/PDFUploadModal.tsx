@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Button from '@/components/Button/Button';
-import Card from '@/components/Card/Card';
+import { Button, Card } from '@chakra-ui/react';
 
 interface PDFUploadModalProps {
   isOpen: boolean;

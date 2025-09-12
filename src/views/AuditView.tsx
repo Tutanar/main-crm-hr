@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { type AuditLog } from '@/types';
-import Button from '@/components/Button/Button';
-import Table from '@/components/Table/Table';
+import { Button, Table, Badge as ChakraBadge, Box, Input } from '@chakra-ui/react';
 import Pagination from '@/components/Pagination/Pagination';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 
@@ -18,9 +17,12 @@ export default function AuditView({ role }: AuditViewProps) {
   const [error, setError] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [actionFilter, setActionFilter] = useState<string>('');
-  const [tableFilter, setTableFilter] = useState<string>('');
+  const [idFilter, setIdFilter] = useState('');
+  const [actionFilter, setActionFilter] = useState('');
+  const [tableFilter, setTableFilter] = useState('');
+  const [recordFilter, setRecordFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
+  const [ipFilter, setIpFilter] = useState('');
 
   // Загрузка аудита
   const loadAuditLogs = async () => {
@@ -50,34 +52,8 @@ export default function AuditView({ role }: AuditViewProps) {
 
       const data = await response.json();
       const auditLogsData = data.data || [];
-
-      // Фильтрация по поиску
-      let filteredLogs = auditLogsData;
-      if (searchTerm) {
-        filteredLogs = auditLogsData.filter((log: AuditLog) =>
-          log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          log.table_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          log.record_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          log.ip_address?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      // Фильтрация по действию
-      if (actionFilter) {
-        filteredLogs = filteredLogs.filter((log: AuditLog) =>
-          log.action === actionFilter
-        );
-      }
-
-      // Фильтрация по таблице
-      if (tableFilter) {
-        filteredLogs = filteredLogs.filter((log: AuditLog) =>
-          log.table_name === tableFilter
-        );
-      }
-
-      setAuditLogs(filteredLogs);
-      setTotalPages(Math.ceil(filteredLogs.length / 10));
+      setAuditLogs(auditLogsData);
+      setTotalPages(Math.ceil(auditLogsData.length / 10));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка загрузки аудита');
       console.error('Load audit logs error:', err);
@@ -88,23 +64,13 @@ export default function AuditView({ role }: AuditViewProps) {
 
   useEffect(() => {
     loadAuditLogs();
-  }, [searchTerm, actionFilter, tableFilter]);
+  }, []);
 
   const getActionBadge = (action: AuditLog['action']) => {
-    const actionConfig = {
-      'CREATE': { color: 'bg-green-100 text-green-800', text: 'Создание' },
-      'UPDATE': { color: 'bg-blue-100 text-blue-800', text: 'Обновление' },
-      'DELETE': { color: 'bg-red-100 text-red-800', text: 'Удаление' },
-      'LOGIN': { color: 'bg-purple-100 text-purple-800', text: 'Вход' },
-      'LOGOUT': { color: 'bg-gray-100 text-gray-800', text: 'Выход' }
+    const map: Record<AuditLog['action'], string> = {
+      CREATE: 'green', UPDATE: 'blue', DELETE: 'red', LOGIN: 'purple', LOGOUT: 'gray'
     };
-
-    const config = actionConfig[action];
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-        {config.text}
-      </span>
-    );
+    return <ChakraBadge colorScheme={map[action]}>{action}</ChakraBadge>;
   };
 
   const formatDate = (dateString: string) => {
@@ -189,74 +155,54 @@ export default function AuditView({ role }: AuditViewProps) {
   }
 
   return (
-    <div className="content-container">
-      <div className="page-header">
+    <Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
         <h1 className="page-title">Журнал аудита</h1>
-        <div className="page-actions">
-          <Button onClick={loadAuditLogs}>
-            Обновить
-          </Button>
-        </div>
-      </div>
+        <Button onClick={loadAuditLogs}>Обновить</Button>
+      </Box>
 
-      {/* Фильтры */}
-      <div className="filters-container">
-        <div className="filters-grid">
-          <div className="filter-field">
-            <label className="filter-label">
-              Поиск
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Поиск по действию, таблице или IP..."
-              className="filter-input filter-input--search"
-            />
-          </div>
-          <div className="filter-field">
-            <label className="filter-label">
-              Действие
-            </label>
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Все действия</option>
-              <option value="CREATE">Создание</option>
-              <option value="UPDATE">Обновление</option>
-              <option value="DELETE">Удаление</option>
-              <option value="LOGIN">Вход</option>
-              <option value="LOGOUT">Выход</option>
-            </select>
-          </div>
-          <div className="filter-field">
-            <label className="filter-label">
-              Таблица
-            </label>
-            <select
-              value={tableFilter}
-              onChange={(e) => setTableFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Все таблицы</option>
-              <option value="users">users</option>
-              <option value="candidates">candidates</option>
-              <option value="staff">staff</option>
-              <option value="audit_logs">audit_logs</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      {/* Таблица фильтров */}
+      <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+        <Table.Root size="sm" variant="outline" css={{ tableLayout:'fixed', width:'100%' }}>
+          <Table.Body>
+            <Table.Row>
+              <Table.Cell width="16%"><Input size="sm" placeholder="Action" value={actionFilter} onChange={(e)=>setActionFilter(e.target.value)} /></Table.Cell>
+              <Table.Cell width="18%"><Input size="sm" placeholder="Table" value={tableFilter} onChange={(e)=>setTableFilter(e.target.value)} /></Table.Cell>
+              <Table.Cell width="16%"><Input size="sm" placeholder="Record ID" value={recordFilter} onChange={(e)=>setRecordFilter(e.target.value)} /></Table.Cell>
+              <Table.Cell width="16%"><Input size="sm" placeholder="User" value={userFilter} onChange={(e)=>setUserFilter(e.target.value)} /></Table.Cell>
+              <Table.Cell width="16%"><Input size="sm" placeholder="IP" value={ipFilter} onChange={(e)=>setIpFilter(e.target.value)} /></Table.Cell>
+              <Table.Cell width="18%" />
+            </Table.Row>
+          </Table.Body>
+        </Table.Root>
+      </Box>
 
       {/* Таблица аудита */}
       <div className="table-container table-container--modern">
-        <Table
-          data={auditLogs}
-          columns={columns}
-          loading={loading}
-        />
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
+            <Table.Row>
+              {columns.map((c) => (
+                <Table.ColumnHeader key={c.key}>{c.label}</Table.ColumnHeader>
+              ))}
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {auditLogs
+              .filter(r => (actionFilter ? r.action.toLowerCase().includes(actionFilter.toLowerCase()) : true))
+              .filter(r => (tableFilter ? r.table_name.toLowerCase().includes(tableFilter.toLowerCase()) : true))
+              .filter(r => (recordFilter ? (r.record_id||'').toLowerCase().includes(recordFilter.toLowerCase()) : true))
+              .filter(r => (userFilter ? (r.user_id||'').toLowerCase().includes(userFilter.toLowerCase()) : true))
+              .filter(r => (ipFilter ? (r.ip_address||'').toLowerCase().includes(ipFilter.toLowerCase()) : true))
+              .map((row) => (
+              <Table.Row key={row.id}>
+                {columns.map((c) => (
+                  <Table.Cell key={c.key}>{c.render(row) as any}</Table.Cell>
+                ))}
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
       </div>
 
       {/* Пагинация */}
@@ -295,6 +241,6 @@ export default function AuditView({ role }: AuditViewProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 }

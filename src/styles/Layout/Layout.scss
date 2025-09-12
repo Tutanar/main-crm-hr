@@ -25,24 +25,24 @@ body {
 .layout__content {
   display: flex;
   flex: 1;
-  margin-top: 64px; // Header height
+   // Header height
 }
 
 .layout__main {
   flex: 1;
-  margin-left: 320px; // Sidebar width + gap
+  margin-left: 280px; // Sidebar width + gap
   padding: 24px;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: calc(100vh - 64px);
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--surface-subtle);
   backdrop-filter: blur(8px);
-  border-radius: 16px 0 0 0;
+  
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
 }
 
 // When sidebar is collapsed
 .layout__main.sidebar-collapsed {
-  margin-left: 110px; // Collapsed sidebar width + gap
+  margin-left: 80px; // Collapsed sidebar width + gap
 }
 
 .main { 

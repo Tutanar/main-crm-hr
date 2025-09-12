@@ -1,9 +1,0 @@
-.tabs {
-    &__bar { display:flex; gap:8px; border-bottom:1px solid var(--border); }
-    &__btn {
-      padding: 10px 12px; border-radius: 12px 12px 0 0; border:1px solid transparent; color: var(--text-700);
-      &--active { background:#fff; border-color: var(--border); border-bottom-color:#fff; color: var(--text-900); }
-    }
-    &__panel { background:#fff; border:1px solid var(--border); border-top:0; border-radius: 0 16px 16px 16px; padding: 16px; }
-  }
-  
