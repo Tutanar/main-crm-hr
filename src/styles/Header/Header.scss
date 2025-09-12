@@ -2,20 +2,21 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--header-surface);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   height: 64px;
 
   &__content {
-    max-width: 1200px;
+    
     margin: 0 auto;
     margin-left: 10px;
     padding: 12px 24px;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
     height: 100%;
+    column-gap: 16px;
   }
 
   &__left {
@@ -24,9 +25,18 @@
     gap: 16px;
   }
 
+  &__center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
   &__right {
     display: flex;
     align-items: center;
+    gap: 12px;
+    margin-left: auto;
   }
 
   &__sidebar-toggle {
@@ -65,13 +75,13 @@
   &__title {
     font-size: 18px;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--text-900);
     margin: 0;
   }
 
   &__role {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--text-700);
     font-weight: 500;
   }
 }

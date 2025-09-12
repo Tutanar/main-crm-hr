@@ -14,6 +14,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Разрешённые общие страницы (не зависят от роли)
+    if (pathname.startsWith('/2fa') || pathname.startsWith('/profile')) {
+      return;
+    }
+
     // если зашёл, но путь не соответствует роли — отправляем на домашнюю роль
     if (s.role === 'admin' && !pathname.startsWith('/admin')) router.replace('/admin/candidates');
     if (s.role === 'chief-hr' && !pathname.startsWith('/chief-hr')) router.replace('/chief-hr/candidates');

@@ -5,12 +5,15 @@
 // Styles for components
 @import './Header/Header.scss';
 @import './Card/Card.scss';
-@import './Button/Button.scss';
+// Button styles are deprecated in favor of Chakra buttons
+// @import './Button/Button.scss';
 @import './Avatar/Avatar.scss';
 @import './Pagination/Pagination.scss';
-@import './Tabs/Tabs.scss';
+// Tabs styles deprecated
+// @import './Tabs/Tabs.scss';
 @import './Layout/Layout.scss';
-@import './Table/Table.scss';
+// Table styles deprecated (using Chakra Table)
+// @import './Table/Table.scss';
 @import './Sidebar/Sidebar.scss';
 @import './Filters/Filters.scss';
 @import './Stats/Stats.scss';

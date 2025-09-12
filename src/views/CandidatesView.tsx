@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { Box, Button, Card, CardHeader, CardBody, Heading, Text, Input, Stack, Badge, Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/react';
 
 // Types
 interface Candidate {
@@ -27,7 +28,15 @@ export default function CandidatesView() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [search, setSearch] = useState('');
+  const [searchId, setSearchId] = useState('');
+  const [searchName, setSearchName] = useState('');
+  const [searchPhone, setSearchPhone] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
+  const [searchSegment, setSearchSegment] = useState('');
+  const [searchTeam, setSearchTeam] = useState('');
+  const [searchLanguage, setSearchLanguage] = useState('');
+  const [searchSource, setSearchSource] = useState('');
+  const [searchComment, setSearchComment] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -43,9 +52,7 @@ export default function CandidatesView() {
         type: 'candidates',
       });
 
-      if (search.trim()) {
-        params.append('search', search.trim());
-      }
+      // no server search, client-side filters
 
       const response = await fetch(`/api/people?${params.toString()}`);
       
@@ -73,14 +80,21 @@ export default function CandidatesView() {
   // Load data on mount and when search/page changes
   useEffect(() => {
     loadCandidates();
-  }, [currentPage, search]);
+  }, [currentPage]);
 
   // Handle search
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    loadCandidates();
-  };
+  const filtered = candidates.filter((c)=>{
+    const byId = searchId ? String(c.id).includes(searchId) : true;
+    const byName = searchName ? c.name.toLowerCase().includes(searchName.toLowerCase()) : true;
+    const byPhone = searchPhone ? (c.phone||'').toLowerCase().includes(searchPhone.toLowerCase()) : true;
+    const byStatus = searchStatus ? c.status_name.toLowerCase().includes(searchStatus.toLowerCase()) : true;
+    const bySegment = searchSegment ? c.segment_name.toLowerCase().includes(searchSegment.toLowerCase()) : true;
+    const byTeam = searchTeam ? c.team_name.toLowerCase().includes(searchTeam.toLowerCase()) : true;
+    const byLang = searchLanguage ? c.language_name.toLowerCase().includes(searchLanguage.toLowerCase()) : true;
+    const bySource = searchSource ? c.source_name.toLowerCase().includes(searchSource.toLowerCase()) : true;
+    const byComment = searchComment ? (c.comment||'').toLowerCase().includes(searchComment.toLowerCase()) : true;
+    return byId && byName && byPhone && byStatus && bySegment && byTeam && byLang && bySource && byComment;
+  });
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -109,142 +123,125 @@ export default function CandidatesView() {
     }
   };
 
-  return (
-    <div>
-      {/* Header */}
-      <div className="card card--panel">
-        <div className="card__head">
-          <h1>Candidates</h1>
-          <div>
-            Total: {totalCount} candidates
-          </div>
-        </div>
-      </div>
+  // no chart — table only
 
-      {/* Search */}
-      <div className="card" style={{ marginTop: '20px' }}>
-        <div className="card__body">
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', maxWidth: '500px' }}>
-            <input
-              type="text"
-              placeholder="Search candidates by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <button type="submit" className="btn btn--primary">
-              Search
-            </button>
-          </form>
-        </div>
-      </div>
+  return (
+    <Box>
+      {/* Header */}
+      <Card bg="bg.subtle" borderColor="border">
+        <CardHeader display="flex" justifyContent="space-between" alignItems="center">
+          <Heading size="md">Candidates</Heading>
+          <Text color="fg.muted">Total: {totalCount} candidates</Text>
+        </CardHeader>
+      </Card>
+
+      {/* Filters table */}
+      <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+        <Table size="sm" variant="outline" style={{ tableLayout:'fixed', width:'100%' }}>
+          <Tbody>
+            <Tr>
+              <Td width="6%"><Input size="sm" placeholder="ID" value={searchId} onChange={(e)=>setSearchId(e.target.value)} /></Td>
+              <Td width="16%"><Input size="sm" placeholder="Name" value={searchName} onChange={(e)=>setSearchName(e.target.value)} /></Td>
+              <Td width="12%"><Input size="sm" placeholder="Phone" value={searchPhone} onChange={(e)=>setSearchPhone(e.target.value)} /></Td>
+              <Td width="12%" />
+              <Td width="10%"><Input size="sm" placeholder="Status" value={searchStatus} onChange={(e)=>setSearchStatus(e.target.value)} /></Td>
+              <Td width="10%"><Input size="sm" placeholder="Segment" value={searchSegment} onChange={(e)=>setSearchSegment(e.target.value)} /></Td>
+              <Td width="8%"><Input size="sm" placeholder="Team" value={searchTeam} onChange={(e)=>setSearchTeam(e.target.value)} /></Td>
+              <Td width="10%"><Input size="sm" placeholder="Language" value={searchLanguage} onChange={(e)=>setSearchLanguage(e.target.value)} /></Td>
+              <Td width="8%"><Input size="sm" placeholder="Source" value={searchSource} onChange={(e)=>setSearchSource(e.target.value)} /></Td>
+              <Td><Input size="sm" placeholder="Comment" value={searchComment} onChange={(e)=>setSearchComment(e.target.value)} /></Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </Box>
+
+      {/* Chart removed */}
 
       {/* Error */}
       {error && (
-        <div className="card" style={{ marginTop: '20px', background: '#fee2e2', borderColor: '#fca5a5' }}>
-          <div className="card__body" style={{ textAlign: 'center' }}>
-            <p style={{ color: '#dc2626', margin: '0 0 15px 0' }}>{error}</p>
-            <button className="btn btn--primary" onClick={loadCandidates}>
-              Try Again
-            </button>
-          </div>
-        </div>
+        <Card mt={5} bg="red.50" borderColor="red.200">
+          <CardBody textAlign="center">
+            <Text color="red.600" mb={3}>{error}</Text>
+            <Button colorScheme="red" onClick={loadCandidates}>Try Again</Button>
+          </CardBody>
+        </Card>
       )}
 
       {/* Loading */}
       {loading ? (
-        <div className="card" style={{ marginTop: '20px', textAlign: 'center', padding: '40px' }}>
-          <div className="card__body">
-            Loading candidates...
-          </div>
-        </div>
+        <Card mt={5} textAlign="center" p={10}>
+          <CardBody>Loading candidates...</CardBody>
+        </Card>
       ) : (
         <>
-          {/* Candidates List */}
-          <div style={{ marginTop: '20px' }}>
-            {candidates.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                <div className="card__body">
-                  <p>No candidates found</p>
-                </div>
-              </div>
+          {/* Candidates Table */}
+          <Box mt={2} bg="bg.default" border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+            {filtered.length === 0 ? (
+              <Box textAlign="center" p={10}><Text>No candidates found</Text></Box>
             ) : (
-              candidates.map((candidate) => (
-                <div key={candidate.id} className="card" style={{ marginBottom: '20px' }}>
-                  <div className="card__head">
-                    <div>
-                      <h3 style={{ margin: '0 0 8px 0' }}>{candidate.name}</h3>
-                      <p style={{ margin: '0 0 4px 0', color: '#6b7280' }}>
-                        {candidate.phone || 'No phone'}
-                      </p>
-                      <p style={{ margin: '0', color: '#9ca3af', fontSize: '13px' }}>
-                        Registered: {formatDate(candidate.registration_date)}
-                      </p>
-                    </div>
-                    <div>
-                      <span className={`badge badge--${getStatusBadgeColor(candidate.status_code)}`}>
-                        {candidate.status_name}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="card__body">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Segment:</span>
-                        <span style={{ fontSize: '14px' }}>{candidate.segment_name}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Team:</span>
-                        <span style={{ fontSize: '14px' }}>{candidate.team_name}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Language:</span>
-                        <span style={{ fontSize: '14px' }}>{candidate.language_name}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Source:</span>
-                        <span style={{ fontSize: '14px' }}>{candidate.source_name}</span>
-                      </div>
-                      {candidate.comment && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', gridColumn: '1 / -1' }}>
-                          <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Comment:</span>
-                          <span style={{ fontSize: '14px' }}>{candidate.comment}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
+              <Table size="sm" variant="outline" style={{ tableLayout:'fixed', width:'100%' }}>
+                <Thead>
+                  <Tr bg="bg.subtle">
+                    <Th width="6%">ID</Th>
+                    <Th width="16%">Name</Th>
+                    <Th width="12%">Phone</Th>
+                    <Th width="12%">Registered</Th>
+                    <Th width="10%">Status</Th>
+                    <Th width="10%">Segment</Th>
+                    <Th width="8%">Team</Th>
+                    <Th width="10%">Language</Th>
+                    <Th width="8%">Source</Th>
+                    <Th>Comment</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {filtered.map((c) => (
+                    <Tr key={c.id} _hover={{ bg: 'bg.subtle' }}>
+                      <Td>{c.id}</Td>
+                      <Td>{c.name}</Td>
+                      <Td>{c.phone || '—'}</Td>
+                      <Td>{formatDate(c.registration_date)}</Td>
+                      <Td><Badge colorScheme={getStatusBadgeColor(c.status_code)}>{c.status_name}</Badge></Td>
+                      <Td>{c.segment_name}</Td>
+                      <Td>{c.team_name}</Td>
+                      <Td>{c.language_name}</Td>
+                      <Td>{c.source_name}</Td>
+                      <Td maxW="320px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">{c.comment || '—'}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
             )}
-          </div>
+          </Box>
 
           {/* Pagination */}
           {totalCount > 20 && (
-            <div className="card" style={{ marginTop: '20px', textAlign: 'center' }}>
-              <div className="card__body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
-                <button 
-                  className="btn btn--secondary"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </button>
-                <span style={{ color: '#6b7280', fontSize: '14px' }}>
-                  Page {currentPage} of {Math.ceil(totalCount / 20)}
-                </span>
-                <button 
-                  className="btn btn--secondary"
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  disabled={currentPage >= Math.ceil(totalCount / 20)}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            <Card mt={5} textAlign="center">
+              <CardBody>
+                <Stack direction="row" justify="center" gap={5}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Text color="gray.600" fontSize="sm">
+                    Page {currentPage} of {Math.ceil(totalCount / 20)}
+                  </Text>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    disabled={currentPage >= Math.ceil(totalCount / 20)}
+                  >
+                    Next
+                  </Button>
+                </Stack>
+              </CardBody>
+            </Card>
           )}
         </>
       )}
-    </div>
+    </Box>
   );
 }

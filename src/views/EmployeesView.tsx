@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { Box, Button, Card, CardHeader, CardBody, Heading, Input, Stack, Badge, Text, Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/react';
 
 // Types
 interface Employee {
@@ -27,7 +28,15 @@ export default function EmployeesView() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [search, setSearch] = useState('');
+  const [searchName, setSearchName] = useState('');
+  const [searchId, setSearchId] = useState('');
+  const [searchPhone, setSearchPhone] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
+  const [searchSegment, setSearchSegment] = useState('');
+  const [searchTeam, setSearchTeam] = useState('');
+  const [searchLanguage, setSearchLanguage] = useState('');
+  const [searchSource, setSearchSource] = useState('');
+  const [searchComment, setSearchComment] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -43,9 +52,7 @@ export default function EmployeesView() {
         type: 'employees',
       });
 
-      if (search.trim()) {
-        params.append('search', search.trim());
-      }
+      // server returns page slice; client-side filtering below
 
       const response = await fetch(`/api/people?${params.toString()}`);
       
@@ -73,14 +80,21 @@ export default function EmployeesView() {
   // Load data on mount and when search/page changes
   useEffect(() => {
     loadEmployees();
-  }, [currentPage, search]);
+  }, [currentPage]);
 
-  // Handle search
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    loadEmployees();
-  };
+  // Derived filtered data client-side
+  const filtered = employees.filter((e) => {
+    const byId = searchId ? String(e.id).includes(searchId) : true;
+    const byName = searchName ? e.name.toLowerCase().includes(searchName.toLowerCase()) : true;
+    const byPhone = searchPhone ? (e.phone || '').toLowerCase().includes(searchPhone.toLowerCase()) : true;
+    const byStatus = searchStatus ? e.status_name.toLowerCase().includes(searchStatus.toLowerCase()) : true;
+    const bySegment = searchSegment ? e.segment_name.toLowerCase().includes(searchSegment.toLowerCase()) : true;
+    const byTeam = searchTeam ? e.team_name.toLowerCase().includes(searchTeam.toLowerCase()) : true;
+    const byLanguage = searchLanguage ? e.language_name.toLowerCase().includes(searchLanguage.toLowerCase()) : true;
+    const bySource = searchSource ? e.source_name.toLowerCase().includes(searchSource.toLowerCase()) : true;
+    const byComment = searchComment ? (e.comment || '').toLowerCase().includes(searchComment.toLowerCase()) : true;
+    return byId && byName && byPhone && byStatus && bySegment && byTeam && byLanguage && bySource && byComment;
+  });
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -106,141 +120,108 @@ export default function EmployeesView() {
   };
 
   return (
-    <div>
+    <Box>
       {/* Header */}
-      <div className="card card--panel">
-        <div className="card__head">
-          <h1>Employees</h1>
-          <div>
-            Total: {totalCount} employees
-          </div>
-        </div>
-      </div>
+      <Card bg="bg.subtle" borderColor="border">
+        <CardHeader display="flex" justifyContent="space-between" alignItems="center">
+          <Heading size="md">Employees</Heading>
+          <Text color="fg.muted">Total: {totalCount} employees</Text>
+        </CardHeader>
+      </Card>
 
-      {/* Search */}
-      <div className="card" style={{ marginTop: '20px' }}>
-        <div className="card__body">
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', maxWidth: '500px' }}>
-            <input
-              type="text"
-              placeholder="Search employees by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <button type="submit" className="btn btn--primary">
-              Search
-            </button>
-          </form>
-        </div>
-      </div>
+      {/* Removed top search */}
 
       {/* Error */}
       {error && (
-        <div className="card" style={{ marginTop: '20px', background: '#fee2e2', borderColor: '#fca5a5' }}>
-          <div className="card__body" style={{ textAlign: 'center' }}>
-            <p style={{ color: '#dc2626', margin: '0 0 15px 0' }}>{error}</p>
-            <button className="btn btn--primary" onClick={loadEmployees}>
-              Try Again
-            </button>
-          </div>
-        </div>
+        <Card mt={5} bg="red.50" borderColor="red.200">
+          <CardBody textAlign="center">
+            <Text color="red.600" mb={3}>{error}</Text>
+            <Button colorScheme="red" onClick={loadEmployees}>Try Again</Button>
+          </CardBody>
+        </Card>
       )}
 
       {/* Loading */}
       {loading ? (
-        <div className="card" style={{ marginTop: '20px', textAlign: 'center', padding: '40px' }}>
-          <div className="card__body">
-            Loading employees...
-          </div>
-        </div>
+        <Card mt={5} textAlign="center" p={10}>
+          <CardBody>Loading employees...</CardBody>
+        </Card>
       ) : (
         <>
-          {/* Employees List */}
-          <div style={{ marginTop: '20px' }}>
-            {employees.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                <div className="card__body">
-                  <p>No employees found</p>
-                </div>
-              </div>
+          {/* Filters table (separate) */}
+          <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+            <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+              <Tbody>
+                <Tr>
+                  <Td width="6%"><Input size="sm" placeholder="ID" value={searchId} onChange={(e)=>setSearchId(e.target.value)} /></Td>
+                  <Td width="16%"><Input size="sm" placeholder="Name" value={searchName} onChange={(e)=>setSearchName(e.target.value)} /></Td>
+                  <Td width="12%"><Input size="sm" placeholder="Phone" value={searchPhone} onChange={(e)=>setSearchPhone(e.target.value)} /></Td>
+                  <Td width="12%" />
+                  <Td width="10%"><Input size="sm" placeholder="Status" value={searchStatus} onChange={(e)=>setSearchStatus(e.target.value)} /></Td>
+                  <Td width="10%"><Input size="sm" placeholder="Segment" value={searchSegment} onChange={(e)=>setSearchSegment(e.target.value)} /></Td>
+                  <Td width="8%"><Input size="sm" placeholder="Team" value={searchTeam} onChange={(e)=>setSearchTeam(e.target.value)} /></Td>
+                  <Td width="10%"><Input size="sm" placeholder="Language" value={searchLanguage} onChange={(e)=>setSearchLanguage(e.target.value)} /></Td>
+                  <Td width="8%"><Input size="sm" placeholder="Source" value={searchSource} onChange={(e)=>setSearchSource(e.target.value)} /></Td>
+                  <Td><Input size="sm" placeholder="Comment" value={searchComment} onChange={(e)=>setSearchComment(e.target.value)} /></Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+
+          {/* Employees Table */}
+          <Box mt={2} bg="bg.default" border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+            {filtered.length === 0 ? (
+              <Box textAlign="center" p={10}><Text>No employees found</Text></Box>
             ) : (
-              employees.map((employee) => (
-                <div key={employee.id} className="card" style={{ marginBottom: '20px' }}>
-                  <div className="card__head">
-                    <div>
-                      <h3 style={{ margin: '0 0 8px 0' }}>{employee.name}</h3>
-                      <p style={{ margin: '0 0 4px 0', color: '#6b7280' }}>
-                        {employee.phone || 'No phone'}
-                      </p>
-                      <p style={{ margin: '0', color: '#9ca3af', fontSize: '13px' }}>
-                        Registered: {formatDate(employee.registration_date)}
-                      </p>
-                    </div>
-                    <div>
-                      <span className={`badge badge--${getStatusBadgeColor(employee.status_code)}`}>
-                        {employee.status_name}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="card__body">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Segment:</span>
-                        <span style={{ fontSize: '14px' }}>{employee.segment_name}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Team:</span>
-                        <span style={{ fontSize: '14px' }}>{employee.team_name}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Language:</span>
-                        <span style={{ fontSize: '14px' }}>{employee.language_name}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Source:</span>
-                        <span style={{ fontSize: '14px' }}>{employee.source_name}</span>
-                      </div>
-                      {employee.comment && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', gridColumn: '1 / -1' }}>
-                          <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: '500', minWidth: '80px' }}>Comment:</span>
-                          <span style={{ fontSize: '14px' }}>{employee.comment}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
+              <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+                <Thead>
+                  <Tr>
+                    <Th width="6%">ID</Th>
+                    <Th width="16%">Name</Th>
+                    <Th width="12%">Phone</Th>
+                    <Th width="12%">Registered</Th>
+                    <Th width="10%">Status</Th>
+                    <Th width="10%">Segment</Th>
+                    <Th width="8%">Team</Th>
+                    <Th width="10%">Language</Th>
+                    <Th width="8%">Source</Th>
+                    <Th>Comment</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {filtered.map((e) => (
+                    <Tr key={e.id} _hover={{ bg: 'bg.subtle' }}>
+                      <Td>{e.id}</Td>
+                      <Td>{e.name}</Td>
+                      <Td>{e.phone || '—'}</Td>
+                      <Td>{formatDate(e.registration_date)}</Td>
+                      <Td><Badge colorScheme={getStatusBadgeColor(e.status_code)}>{e.status_name}</Badge></Td>
+                      <Td>{e.segment_name}</Td>
+                      <Td>{e.team_name}</Td>
+                      <Td>{e.language_name}</Td>
+                      <Td>{e.source_name}</Td>
+                      <Td maxW="320px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">{e.comment || '—'}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
             )}
-          </div>
+          </Box>
 
           {/* Pagination */}
           {totalCount > 20 && (
-            <div className="card" style={{ marginTop: '20px', textAlign: 'center' }}>
-              <div className="card__body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
-                <button 
-                  className="btn btn--secondary"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </button>
-                <span style={{ color: '#6b7280', fontSize: '14px' }}>
-                  Page {currentPage} of {Math.ceil(totalCount / 20)}
-                </span>
-                <button 
-                  className="btn btn--secondary"
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  disabled={currentPage >= Math.ceil(totalCount / 20)}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            <Card mt={5} textAlign="center">
+              <CardBody>
+                <Stack direction="row" justify="center" gap={5}>
+                  <Button variant="outline" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1}>Previous</Button>
+                  <Text color="fg.muted" fontSize="sm">Page {currentPage} of {Math.ceil(totalCount / 20)}</Text>
+                  <Button variant="outline" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage >= Math.ceil(totalCount / 20)}>Next</Button>
+                </Stack>
+              </CardBody>
+            </Card>
           )}
         </>
       )}
-    </div>
+    </Box>
   );
 }

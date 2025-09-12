@@ -1,7 +1,7 @@
 // Конфигурация приложения
 export const config = {
   hasura: {
-    url: process.env.HASURA_URL || process.env.NEXT_PUBLIC_HASURA_URL || 'https://api.skyr1m-f0r-n0rds.sbs/v1/graphql',
+    url: process.env.HASURA_URL || process.env.NEXT_PUBLIC_HASURA_URL,
     adminSecret: process.env.HASURA_ADMIN_SECRET || '',
     jwtSecret: process.env.HASURA_GRAPHQL_JWT_SECRET || '{"type":"HS256","key":"default-secret-key"}',
   },

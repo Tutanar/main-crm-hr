@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 import { api } from '@/lib/api';
-import Button from '@/components/Button/Button';
+import { Button } from '@chakra-ui/react';
 
 interface UserData {
   id: string;

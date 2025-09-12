@@ -4,12 +4,31 @@
 :root {
   --pink-25: rgba(236, 72, 153, 0.1);
   --pink-100: rgba(236, 72, 153, 0.15);
-  --pink-500: #ec4899;
+  --pink-500: #3f73eb; // align with brand.500
   --text-700: #6b7280;
   --text-900: #1f2937;
   --border: rgba(0, 0, 0, 0.1);
+  --surface: #ffffff;
+  --surface-subtle: #f9fafb;
+  --header-surface: rgba(255, 255, 255, 0.75);
+  --sidebar-surface: rgba(255, 255, 255, 0.95);
   --bg-grad-from: #f8fafc;
   --bg-grad-to: #e2e8f0;
+}
+
+// Dark mode overrides (support next-themes .dark and Chakra data-theme/class)
+.dark,
+[data-theme='dark'],
+.chakra-ui-dark {
+  --text-700: #cbd5e1;
+  --text-900: #f3f4f6;
+  --border: rgba(255, 255, 255, 0.16);
+  --surface: #111827; /* gray.900 */
+  --surface-subtle: #0f172a; /* slate.900 */
+  --header-surface: rgba(17, 24, 39, 0.75);
+  --sidebar-surface: rgba(17, 24, 39, 0.85);
+  --bg-grad-from: #0b1220;
+  --bg-grad-to: #111827;
 }
 
 // Smooth transitions for all interactive elements
