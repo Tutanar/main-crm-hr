@@ -55,10 +55,10 @@ export default function Header({ isSidebarCollapsed, onToggleSidebar }: HeaderPr
           <button 
             className="header__sidebar-toggle" 
             onClick={handleToggleSidebar}
-            aria-label={isSidebarCollapsed ? 'Развернуть сайдбар' : 'Свернуть сайдбар'}
+            aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isSidebarCollapsed ? (
-              // 3 линии когда свернуто
+              // 3 lines when collapsed
               <svg 
                 className="header__toggle-icon"
                 width="16" 
@@ -73,7 +73,7 @@ export default function Header({ isSidebarCollapsed, onToggleSidebar }: HeaderPr
                 <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
             ) : (
-              // Крестик когда развернуто
+              // Close icon when expanded
               <svg 
                 className="header__toggle-icon"
                 width="16" 
@@ -107,8 +107,8 @@ export default function Header({ isSidebarCollapsed, onToggleSidebar }: HeaderPr
           <Menu>
             <MenuButton
               as={IconButton}
-              aria-label="Открыть профиль"
-              title="Профиль"
+              aria-label="Open profile"
+              title="Profile"
               variant="outline"
               size="sm"
               borderRadius="full"

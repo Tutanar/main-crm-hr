@@ -56,13 +56,6 @@ const theme = extendTheme({
         table: {
           bg: "transparent",
           borderColor: mode("gray.200", "gray.700")(props),
-          // zebra rows
-          "& tbody tr:nth-of-type(odd)": {
-            bg: mode("white", "gray.900")(props),
-          },
-          "& tbody tr:nth-of-type(even)": {
-            bg: mode("gray.50", "gray.800")(props),
-          },
         },
         thead: {
           bg: mode("gray.100", "gray.700")(props),
@@ -70,10 +63,20 @@ const theme = extendTheme({
         th: {
           color: mode("gray.700", "gray.200")(props),
           borderColor: mode("gray.200", "gray.700")(props),
+          fontWeight: "semibold",
+          fontSize: "sm",
         },
         td: {
           color: mode("gray.800", "gray.100")(props),
           borderColor: mode("gray.200", "gray.700")(props),
+        },
+        tbody: {
+          "& tr:nth-of-type(odd)": {
+            bg: mode("white", "gray.900")(props),
+          },
+          "& tr:nth-of-type(even)": {
+            bg: mode("gray.50", "gray.800")(props),
+          },
         },
       }),
       variants: {
@@ -81,6 +84,58 @@ const theme = extendTheme({
           th: { borderBottomWidth: "1px" },
           td: { borderBottomWidth: "1px" },
         }),
+        // Лёгкая таблица для фильтров — без горизонтального переполнения
+        filter: (props: any) => ({
+          table: {
+            tableLayout: 'fixed',
+            width: '100%',
+          },
+          thead: {
+            position: 'sticky',
+            top: 0,
+            zIndex: 'docked',
+            bg: mode('gray.100', 'gray.700')(props),
+          },
+        }),
+        // Основная таблица контента: управляем минимальной шириной из темы
+        content: (props: any) => ({
+          table: {
+            tableLayout: 'fixed',
+            minWidth: 'var(--table-content-min-w, 1550px)',
+            // default header height variable
+            ['--table-content-header-h' as any]: '48px',
+            // default body row height variable
+            ['--table-content-row-h' as any]: '40px',
+          },
+          thead: {
+            position: 'sticky',
+            top: 0,
+            zIndex: 'docked',
+            bg: mode('gray.100', 'gray.700')(props),
+            borderBottomWidth: '1px',
+            th: {
+              h: 'var(--table-content-header-h, 48px)',
+              py: 0,
+            },
+          },
+          tbody: {
+            bg: mode('white', 'gray.900')(props),
+            td: {
+              h: 'var(--table-content-row-h, 40px)',
+              py: 0,
+              lineHeight: 'var(--table-content-row-h, 32px)',
+            },
+          },
+        }),
+      },
+      sizes: {
+        // Размер для контентных таблиц: управляет высотой контейнера через CSS var
+        content: {
+          // Примечание: высоту контейнера зададим на уровне TableContainer с var
+          // Здесь оставляем размеры шрифтов/ячеек под этот пресет
+          th: { fontSize: 'sm', py: 3 },
+          td: { fontSize: 'sm', py: 3 },
+        },
       },
     },
   },

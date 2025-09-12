@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Box, Button, Card, CardHeader, CardBody, Heading, Text, Input, Stack, Badge, Table, Thead, Tbody, Tr, Td, Th } from '@chakra-ui/react';
+import { Box, Button, Card, CardHeader, CardBody, Heading, Text, Input, Stack, Badge, Table, Thead, Tbody, Tr, Td, Th, TableContainer } from '@chakra-ui/react';
 
 // Types
 interface Candidate {
@@ -20,6 +20,12 @@ interface Candidate {
   language_name: string;
   source_code: string;
   source_name: string;
+  poly_result?: 'PASSED' | 'DIDNT_PASS' | 'WAITING';
+  background_check_result?: 'PASSED' | 'DIDNT_PASS' | 'WAITING';
+  date_of_start?: string;
+  planned_call?: string;
+  on_contract?: boolean;
+  conditions?: string;
   created_at: string;
   updated_at: string;
 }
@@ -123,6 +129,21 @@ export default function CandidatesView() {
     }
   };
 
+  // Actions
+  const handleEdit = (id: number) => {
+    console.log('Edit candidate', id);
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm('Delete this candidate?')) {
+      console.log('Delete candidate', id);
+    }
+  };
+
+  const handleApprove = (id: number) => {
+    console.log('Approve candidate', id);
+  };
+
   // no chart — table only
 
   return (
@@ -137,9 +158,10 @@ export default function CandidatesView() {
 
       {/* Filters table */}
       <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
-        <Table size="sm" variant="outline" style={{ tableLayout:'fixed', width:'100%' }}>
+        <Table size="sm" variant="filter" minW="1400px">
           <Tbody>
             <Tr>
+              <Td width="8%" />
               <Td width="6%"><Input size="sm" placeholder="ID" value={searchId} onChange={(e)=>setSearchId(e.target.value)} /></Td>
               <Td width="16%"><Input size="sm" placeholder="Name" value={searchName} onChange={(e)=>setSearchName(e.target.value)} /></Td>
               <Td width="12%"><Input size="sm" placeholder="Phone" value={searchPhone} onChange={(e)=>setSearchPhone(e.target.value)} /></Td>
@@ -150,6 +172,7 @@ export default function CandidatesView() {
               <Td width="10%"><Input size="sm" placeholder="Language" value={searchLanguage} onChange={(e)=>setSearchLanguage(e.target.value)} /></Td>
               <Td width="8%"><Input size="sm" placeholder="Source" value={searchSource} onChange={(e)=>setSearchSource(e.target.value)} /></Td>
               <Td><Input size="sm" placeholder="Comment" value={searchComment} onChange={(e)=>setSearchComment(e.target.value)} /></Td>
+              <Td width="6%" />
             </Tr>
           </Tbody>
         </Table>
@@ -175,13 +198,26 @@ export default function CandidatesView() {
       ) : (
         <>
           {/* Candidates Table */}
-          <Box mt={2} bg="bg.default" border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
-            {filtered.length === 0 ? (
-              <Box textAlign="center" p={10}><Text>No candidates found</Text></Box>
-            ) : (
-              <Table size="sm" variant="outline" style={{ tableLayout:'fixed', width:'100%' }}>
+          {filtered.length === 0 ? (
+            <Box mt={2} textAlign="center" p={10} bg="bg.default" border="1px solid" borderColor="border" borderRadius="md">
+              <Text>No candidates found</Text>
+            </Box>
+          ) : (
+            <TableContainer 
+              mt={2} 
+              bg="bg.subtle" 
+              border="1px solid" 
+              borderColor="border" 
+              borderRadius="md" 
+              h="675px" 
+              overflowY="auto"
+              overflowX="auto"
+              sx={{}}
+            >
+              <Table size="content" variant="content" minW="1400px">
                 <Thead>
                   <Tr bg="bg.subtle">
+                    <Th width="8%"></Th>
                     <Th width="6%">ID</Th>
                     <Th width="16%">Name</Th>
                     <Th width="12%">Phone</Th>
@@ -192,11 +228,24 @@ export default function CandidatesView() {
                     <Th width="10%">Language</Th>
                     <Th width="8%">Source</Th>
                     <Th>Comment</Th>
+                    <Th width="10%">Poly</Th>
+                    <Th width="10%">Background</Th>
+                    <Th width="12%">Start date</Th>
+                    <Th width="12%">Planned call</Th>
+                    <Th width="8%">Contract</Th>
+                    <Th width="10%">Conditions</Th>
+                    <Th width="6%"></Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   {filtered.map((c) => (
                     <Tr key={c.id} _hover={{ bg: 'bg.subtle' }}>
+                      <Td>
+                        <Stack direction="row" spacing={2} align="center">
+                          <Button size="xs" colorScheme="blue" onClick={() => handleEdit(c.id)} aria-label="Edit">✏️</Button>
+                          <Button size="xs" colorScheme="red" onClick={() => handleDelete(c.id)} aria-label="Delete">🗑️</Button>
+                        </Stack>
+                      </Td>
                       <Td>{c.id}</Td>
                       <Td>{c.name}</Td>
                       <Td>{c.phone || '—'}</Td>
@@ -207,12 +256,21 @@ export default function CandidatesView() {
                       <Td>{c.language_name}</Td>
                       <Td>{c.source_name}</Td>
                       <Td maxW="320px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">{c.comment || '—'}</Td>
+                      <Td>{c.poly_result || '-'}</Td>
+                      <Td>{c.background_check_result || '-'}</Td>
+                      <Td>{c.date_of_start ? new Date(c.date_of_start).toLocaleDateString('en-US') : '-'}</Td>
+                      <Td>{c.planned_call ? new Date(c.planned_call).toLocaleString('en-US') : '-'}</Td>
+                      <Td>{typeof c.on_contract === 'boolean' ? (c.on_contract ? 'Yes' : 'No') : '-'}</Td>
+                      <Td maxW="240px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">{c.conditions || '-'}</Td>
+                      <Td textAlign="right">
+                        <Button size="xs" colorScheme="green" onClick={() => handleApprove(c.id)} aria-label="Approve">✅</Button>
+                      </Td>
                     </Tr>
                   ))}
                 </Tbody>
               </Table>
-            )}
-          </Box>
+            </TableContainer>
+          )}
 
           {/* Pagination */}
           {totalCount > 20 && (

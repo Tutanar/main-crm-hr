@@ -26,12 +26,12 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
       const result = await login(formData.email, formData.password);
       
       if (result.success) {
-        onLoginSuccess(formData.email, 'admin'); // Роль будет получена из контекста
+        onLoginSuccess(formData.email, 'admin'); // Role will be taken from context
       } else {
-        setError(result.error || 'Ошибка входа');
+        setError(result.error || 'Login failed');
       }
     } catch (error) {
-      setError('Произошла ошибка при входе в систему');
+      setError('An error occurred while signing in');
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
           fontWeight: '600',
           color: '#1f2937'
         }}>
-          Вход в систему CRM HR
+          Sign in to CRM HR
         </h1>
 
         <form onSubmit={handleSubmit}>
@@ -77,7 +77,7 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
           </div>
 
           <div className="field" style={{ marginBottom: '24px' }}>
-            <label className="field__label">Пароль</label>
+            <label className="field__label">Password</label>
             <input
               type="password"
               className="field__input"
@@ -108,7 +108,7 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
             disabled={loading}
             style={{ width: '100%' }}
           >
-            {loading ? 'Вход...' : 'Войти'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
 
@@ -119,7 +119,7 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
           color: '#6b7280'
         }}>
           <p style={{ margin: '0' }}>
-            Введите ваши учетные данные для входа в систему
+            Enter your credentials to access the system
           </p>
         </div>
       </div>

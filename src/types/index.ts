@@ -111,6 +111,7 @@ export interface Person {
   id: number;
   name: string;
   phone?: string;
+  iban?: string;
   registration_date: string;
   status_code: string;
   status_name: string;
@@ -126,6 +127,12 @@ export interface Person {
   language_name: string;
   source_code: string;
   source_name: string;
+  poly_result?: 'PASSED' | 'DIDNT_PASS' | 'WAITING';
+  background_check_result?: 'PASSED' | 'DIDNT_PASS' | 'WAITING';
+  date_of_start?: string;
+  planned_call?: string;
+  on_contract?: boolean;
+  conditions?: string;
   created_at: string;
   updated_at: string;
 }

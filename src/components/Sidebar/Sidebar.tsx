@@ -17,35 +17,32 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     return null;
   }
 
-  const menuItems = [];
+  const menuItems = [] as Array<{ label: string; href: string }>;
 
-  // Добавляем пункты меню в зависимости от роли
+  // Add role-specific menu items
   if (role === 'admin') {
     menuItems.push(
-      { label: 'Кандидаты', href: '/admin/candidates' },
-      { label: 'Сотрудники', href: '/admin/employees' },
-      { label: 'Пользователи', href: '/admin/users' },
-      { label: 'Аудит', href: '/admin/audit' },
+      { label: 'Candidates', href: '/admin/candidates' },
+      { label: 'Employees', href: '/admin/employees' },
+      { label: 'Users', href: '/admin/users' },
+      { label: 'Audit', href: '/admin/audit' },
       { label: 'IP Allowlist', href: '/admin/ip-allowlist' }
     );
   } else if (role === 'chief-hr') {
     menuItems.push(
-      { label: 'Кандидаты', href: '/chief-hr/candidates' },
-      { label: 'Сотрудники', href: '/chief-hr/staff' }
+      { label: 'Candidates', href: '/chief-hr/candidates' },
+      { label: 'Staff', href: '/chief-hr/staff' }
     );
   } else if (role === 'hr') {
     menuItems.push(
-      { label: 'Кандидаты', href: '/hr/candidates' },
-      { label: 'Сотрудники', href: '/hr/staff' }
+      { label: 'Candidates', href: '/hr/candidates' },
+      { label: 'Staff', href: '/hr/staff' }
     );
   }
 
   console.log('Sidebar Debug:', { role, menuItems, pathname });
 
-  // No common menu items - only role-specific ones
-
   const handleLogout = async () => {
-    // Используем logout из контекста
     const { logout } = useRole();
     await logout();
     router.push('/login');
@@ -73,14 +70,14 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         <button 
           className="sidebar__logout" 
           onClick={handleLogout}
-          aria-label="Выйти из системы"
+          aria-label="Log out"
         >
           <svg className="sidebar__logout-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             <polyline points="16,17 21,12 16,7"/>
             <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
-          <span className="sidebar__logout-text">Выйти</span>
+          <span className="sidebar__logout-text">Log out</span>
         </button>
       </div>
     </aside>

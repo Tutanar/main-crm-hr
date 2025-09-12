@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { type User } from '@/types';
-import { Box, Button, Card, CardHeader, CardBody, Heading, Input, Stack, Table, Thead, Tbody, Tr, Td, Th, Text, Badge as ChakraBadge } from '@chakra-ui/react';
+import { Box, Button, Card, CardHeader, CardBody, Heading, Input, Stack, Table, Thead, Tbody, Tr, Td, Th, Text, Badge as ChakraBadge, TableContainer } from '@chakra-ui/react';
 import Pagination from '@/components/Pagination/Pagination';
 import { useRole } from '@/components/RoleProvider/RoleProvider';
 
@@ -23,7 +23,7 @@ export default function UsersView({ role }: UsersViewProps) {
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  // Загрузка пользователей
+  // Load users
   const loadUsers = async () => {
     setLoading(true);
     setError('');
@@ -31,11 +31,11 @@ export default function UsersView({ role }: UsersViewProps) {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        setError('Токен не найден');
+        setError('Token not found');
         return;
       }
 
-      // Реальный API запрос к Hasura
+      // Real API request to Hasura
       const response = await fetch('/api/users', {
         method: 'GET',
         headers: {
@@ -46,7 +46,7 @@ export default function UsersView({ role }: UsersViewProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка загрузки пользователей');
+        throw new Error(errorData.error || 'Failed to load users');
       }
 
       const data = await response.json();
@@ -54,7 +54,7 @@ export default function UsersView({ role }: UsersViewProps) {
       setUsers(usersData);
       setTotalPages(Math.ceil(usersData.length / 10));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки пользователей');
+      setError(err instanceof Error ? err.message : 'Failed to load users');
       console.error('Load users error:', err);
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ export default function UsersView({ role }: UsersViewProps) {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        setError('Токен не найден');
+        setError('Token not found');
         return;
       }
 
@@ -87,26 +87,26 @@ export default function UsersView({ role }: UsersViewProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка обновления статуса');
+        throw new Error(errorData.error || 'Failed to update status');
       }
 
-      // Обновляем локальное состояние
+      // Update local state
       setUsers(prev => prev.map(user =>
         user.id === userId
           ? { ...user, is_active: isActive, updated_at: new Date().toISOString() }
           : user
       ));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка обновления статуса');
+      setError(err instanceof Error ? err.message : 'Failed to update status');
       console.error('Status toggle error:', err);
     }
   };
 
   const getRoleDisplayName = (role: string) => {
     const roleNames: Record<string, string> = {
-      'admin': 'Администратор',
-      'chief-hr': 'Главный HR',
-      'hr': 'HR'
+      'admin': 'Administrator',
+      'chief-hr': 'Chief HR',
+      'hr': 'HR',
     };
     return roleNames[role] || role;
   };
@@ -118,13 +118,13 @@ export default function UsersView({ role }: UsersViewProps) {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU');
+    return new Date(dateString).toLocaleDateString('en-US');
   };
 
   const columns = [
     {
       key: 'full_name',
-      label: 'Имя пользователя',
+      label: 'Full name',
       render: (user: User) => user.full_name
     },
     {
@@ -134,26 +134,26 @@ export default function UsersView({ role }: UsersViewProps) {
     },
     {
       key: 'role',
-      label: 'Роль',
+      label: 'Role',
       render: (user: User) => getRoleBadge(user.role)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: 'Status',
       render: (user: User) => (
         <ChakraBadge colorScheme={user.is_active ? 'green' : 'red'}>
-          {user.is_active ? 'Активен' : 'Неактивен'}
+          {user.is_active ? 'Active' : 'Inactive'}
         </ChakraBadge>
       )
     },
     {
       key: 'created_at',
-      label: 'Дата создания',
+      label: 'Created at',
       render: (user: User) => formatDate(user.created_at)
     },
     {
       key: 'actions',
-      label: 'Действия',
+      label: 'Actions',
       render: (user: User) => (
         <div className="flex gap-2">
           <Button
@@ -161,14 +161,14 @@ export default function UsersView({ role }: UsersViewProps) {
             onClick={() => handleStatusToggle(user.id, !user.is_active)}
             variant={user.is_active ? 'outline' : 'solid'}
           >
-            {user.is_active ? 'Деактивировать' : 'Активировать'}
+            {user.is_active ? 'Deactivate' : 'Activate'}
           </Button>
           <Button
             size="sm"
             variant="outline"
-            onClick={() => {/* Редактировать */}}
+            onClick={() => {/* Edit */}}
           >
-            Редактировать
+            Edit
           </Button>
         </div>
       )
@@ -178,7 +178,7 @@ export default function UsersView({ role }: UsersViewProps) {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Загрузка пользователей...</div>
+        <div className="text-lg">Loading users...</div>
       </div>
     );
   }
@@ -186,10 +186,10 @@ export default function UsersView({ role }: UsersViewProps) {
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="text-red-800 font-medium">Ошибка</div>
+        <div className="text-red-800 font-medium">Error</div>
         <div className="text-red-600">{error}</div>
         <Button onClick={loadUsers} className="mt-2">
-          Попробовать снова
+          Try again
         </Button>
       </div>
     );
@@ -199,15 +199,15 @@ export default function UsersView({ role }: UsersViewProps) {
     <Box>
       <Card bg="bg.subtle" borderColor="border">
         <CardHeader display="flex" justifyContent="space-between" alignItems="center">
-          <Heading size="md">Пользователи</Heading>
-          <Button variant="outline">Добавить пользователя</Button>
+          <Heading size="md">Users</Heading>
+          <Button variant="outline">Add user</Button>
         </CardHeader>
       </Card>
 
-      {/* Фильтры */}
-      {/* Таблица фильтров */}
-      <Box mt={5} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
-        <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+      {/* Filters */}
+      {/* Table filters */}
+      <Box mt={2} border="1px solid" borderColor="border" borderRadius="md" overflowX="auto">
+        <Table size="sm" variant="filter">
           <Tbody>
             <Tr>
               <Td width="10%"><Input size="sm" placeholder="Name" value={nameFilter} onChange={(e)=>setNameFilter(e.target.value)} /></Td>
@@ -220,11 +220,21 @@ export default function UsersView({ role }: UsersViewProps) {
         </Table>
       </Box>
 
-      {/* Таблица пользователей */}
-      <Box mt={2} className="table-container table-container--modern">
-        <Table size="sm" variant="outline" style={{ tableLayout: 'fixed', width: '100%' }}>
+      {/* Users table */}
+      <TableContainer 
+        mt={2} 
+        bg="bg.subtle" 
+        border="1px solid" 
+        borderColor="border" 
+        borderRadius="md" 
+        h="675px" 
+        overflowY="auto"
+        overflowX="auto"
+        sx={{}}
+      >
+        <Table size="content" variant="content">
           <Thead>
-            <Tr>
+            <Tr bg="bg.subtle">
               {columns.map((c) => (
                 <Th key={c.key}>{c.label}</Th>
               ))}
@@ -237,7 +247,7 @@ export default function UsersView({ role }: UsersViewProps) {
               .filter(u => (roleFilter ? u.role.toLowerCase().includes(roleFilter.toLowerCase()) : true))
               .filter(u => (statusFilter ? (statusFilter==='active'?u.is_active:!u.is_active) : true))
               .map((u) => (
-                <Tr key={u.id} bg="bg.subtle">
+                <Tr key={u.id} _hover={{ bg: 'bg.subtle' }}>
                   {columns.map((c) => (
                     <Td key={c.key}>{c.render(u) as any}</Td>
                   ))}
@@ -245,9 +255,9 @@ export default function UsersView({ role }: UsersViewProps) {
               ))}
           </Tbody>
         </Table>
-      </Box>
+      </TableContainer>
 
-      {/* Пагинация */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center">
           <Pagination
@@ -258,31 +268,8 @@ export default function UsersView({ role }: UsersViewProps) {
         </div>
       )}
 
-      {/* Статистика */}
-      <div className="stats-container">
-        <div className="stats-card stats-card--gradient">
-          <div className="stats-label">Всего пользователей</div>
-          <div className="stats-value">{users.length}</div>
-        </div>
-        <div className="stats-card stats-card--red">
-          <div className="stats-label">Администраторы</div>
-          <div className="stats-value stats-value--red">
-            {users.filter(u => u.role === 'admin').length}
-          </div>
-        </div>
-        <div className="stats-card stats-card--green">
-          <div className="stats-label">HR</div>
-          <div className="stats-value stats-value--green">
-            {users.filter(u => u.role === 'hr').length}
-          </div>
-        </div>
-        <div className="stats-card stats-card--blue">
-          <div className="stats-label">Активные</div>
-          <div className="stats-value stats-value--blue">
-            {users.filter(u => u.is_active).length}
-          </div>
-        </div>
-      </div>
+      {/* Stats */}
+      
     </Box>
   );
 }

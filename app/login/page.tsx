@@ -9,14 +9,14 @@ export default function LoginPage() {
   const { isAuthenticated, loading, login } = useRole();
 
   useEffect(() => {
-    // Если уже аутентифицирован, перенаправляем на главную
+    // If already authenticated, redirect to home
     if (isAuthenticated && !loading) {
       router.push('/');
     }
   }, [isAuthenticated, loading, router]);
 
   const handleLoginSuccess = (username: string, role: string) => {
-    // Перенаправляем на главную страницу после успешного входа
+    // Redirect to home after successful login
     router.push('/');
   };
 
@@ -28,13 +28,13 @@ export default function LoginPage() {
         alignItems: 'center',
         height: '100vh'
       }}>
-        Загрузка...
+        Loading...
       </div>
     );
   }
 
   if (isAuthenticated) {
-    return null; // Будет перенаправлено на главную
+    return null; // Will be redirected to home
   }
 
   return (
